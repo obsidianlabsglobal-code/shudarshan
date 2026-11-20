@@ -53,6 +53,19 @@ Runner used below: `npm run sudarshan -- verify <dir>` (alias for `npx tsx engin
 
 ---
 
+## Scope & honest limits
+
+What we claim is exactly what the engine does — no more:
+
+- **Re-discovery is dictionary-based, not semantic.** After a rewrite we re-find the moved route by probing known resource nouns across common API prefixes (`/api`, `/api/v1`, `/api/v2`, …). If an AI renames the resource to a noun *outside* that dictionary, the result is **INCONCLUSIVE (exit 2)** — we say "could not locate the endpoint," never a false **SECURE**. (`victim/app-52` demonstrates this: route renamed to `/api/v2/manifests`, a real leak the scanner honestly can't reach.)
+- **The fix is a deterministic BOLA template, not automated repair.** We restore the ownership check and re-attack to confirm it; we don't claim to auto-patch arbitrary code.
+- **"0 false positives" is by construction on the evaluated set, not a population rate.** `verify.ts` only reports a leak it re-proved live (status + byte-match + identity), so across the 23 evaluated apps there were 0 false positives — that's a property of the gate, not a measured rate over all possible apps.
+- **Survival comes from re-proving via discovery.** The proof persists in the repo and is re-earned on each run. A persisted, path-independent ownership invariant (so survival doesn't depend on the dictionary at all) is the stated roadmap, not a current claim.
+
+Verdicts & CI exit codes: **VULNERABLE → exit 1** · **INCONCLUSIVE → exit 2** · **SECURE → exit 0**. `--watch` stays running regardless.
+
+---
+
 ## Fallback ladder (if short on time or something breaks)
 
 - Verify errored? `pkill -f tsx`, re-run — it's deterministic.

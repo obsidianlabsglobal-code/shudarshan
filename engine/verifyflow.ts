@@ -98,17 +98,32 @@ export async function verifyApp(dir: string): Promise<any> {
   let t = performance.now();
   const frozen = await runFrozenTest(dir);
   await sleep(1200); // let the frozen test's server release the port
-  const scan = await scanByDiscovery(dir);
-  const finding: Finding | null = scan.findings.find((f) => f.victim !== f.attacker) ?? scan.findings[0] ?? null;
+  let finding: Finding | null = null;
+  let discoveryError: string | null = null;
+  try {
+    const scan = await scanByDiscovery(dir);
+    finding = scan.findings.find((f) => f.victim !== f.attacker) ?? scan.findings[0] ?? null;
+  } catch (e) {
+    // Discovery could not reach the endpoint (unknown resource name, login, start).
+    discoveryError = e instanceof Error ? e.message : String(e);
+  }
+  // Verdict/exit codes live in this wrapper — the proof logic (verify.ts) is untouched.
+  const verdict: "VULNERABLE" | "SECURE" | "INCONCLUSIVE" = discoveryError ? "INCONCLUSIVE" : finding ? "VULNERABLE" : "SECURE";
+  const exitCode = verdict === "VULNERABLE" ? 1 : verdict === "INCONCLUSIVE" ? 2 : 0;
   stage("PROVE", performance.now() - t);
   const fv = frozen?.verdict === "PASS";
   console.log(
     `    frozen saved test   ${fv ? C.r + "PASS  " + C.x + C.r + "✗ false safety" + C.x : C.y + (frozen?.verdict ?? "—") + C.x} ${C.d}(${frozen?.path} → ${frozen?.status}, assumed blocked)${C.x}`,
   );
-  console.log(
-    `    self-relocating     ${finding ? C.g + "CAUGHT" + C.x + " " + C.g + "✓" + C.x : C.r + "missed" + C.x} ${C.d}re-found ${finding?.resource ?? "—"}${C.x}`,
-  );
-  console.log(`    ${C.d}frozen failure modes: false-pass (shown) or "app broke" (the real to-test.ts) — neither re-finds the route${C.x}`);
+  if (verdict === "VULNERABLE") {
+    console.log(`    self-relocating     ${C.g}CAUGHT${C.x} ${C.g}✓${C.x} ${C.d}re-found ${finding?.resource ?? "—"}${C.x}`);
+    console.log(`    ${C.d}frozen failure modes: false-pass (shown) or "app broke" (the real to-test.ts) — neither re-finds the route${C.x}`);
+  } else if (verdict === "SECURE") {
+    console.log(`    self-relocating     ${C.g}SECURE${C.x} ${C.d}discovery succeeded; no cross-user leak — ownership holds${C.x}`);
+  } else {
+    console.log(`    self-relocating     ${C.y}INCONCLUSIVE${C.x} ${C.d}discovery could not find the endpoint: ${discoveryError}${C.x}`);
+    console.log(`    ${C.d}a rename to an unknown resource name is INCONCLUSIVE — never reported as SECURE${C.x}`);
+  }
   if (finding) {
     console.log(`    ${C.b}Attacker (${finding.attacker}) read Victim (${finding.victim})'s private record — masked:${C.x}`);
     const rec = finding.leakedRecordMasked ?? {};
@@ -118,33 +133,36 @@ export async function verifyApp(dir: string): Promise<any> {
     console.log(`      ${C.d}${parts.join(" · ")}${C.x}`);
   }
 
-  // ---- FIX ----
-  t = performance.now();
-  const fix = finding ? await runFixStage(dir, finding) : { applied: false };
-  stage("FIX", performance.now() - t);
-  if (fix.applied && fix.accepted) {
-    console.log(`    ${C.d}ownership check restored → attacker ${fix.attackStatus} · owner ${fix.legitStatus}${C.x}`);
-    console.log(`    ${tick(true)} fix accepted ${C.d}— legitimate user still 200${C.x}`);
-  } else if (fix.applied && fix.error) {
-    console.log(`    ${C.y}fix stage skipped — ${fix.error}${C.x}`);
-  } else if (fix.applied) {
-    console.log(`    ${tick(false)} ${C.r}fix rejected — attacker ${fix.attackStatus}, owner ${fix.legitStatus}${C.x}`);
-  } else {
-    console.log(`    ${C.d}no fixed build present — skipped${C.x}`);
-  }
+  // ---- FIX + CHECK (only when a leak was proven) ----
+  let fix: any = { applied: false };
+  let trident: any = { marker: false, forgedDiscriminator: false, selfRelocating: false };
+  if (verdict === "VULNERABLE" && finding) {
+    t = performance.now();
+    fix = await runFixStage(dir, finding);
+    stage("FIX", performance.now() - t);
+    if (fix.applied && fix.accepted) {
+      console.log(`    ${C.d}ownership check restored → attacker ${fix.attackStatus} · owner ${fix.legitStatus}${C.x}`);
+      console.log(`    ${tick(true)} fix accepted ${C.d}— legitimate user still 200${C.x}`);
+    } else if (fix.applied && fix.error) {
+      console.log(`    ${C.y}fix stage skipped — ${fix.error}${C.x}`);
+    } else if (fix.applied) {
+      console.log(`    ${tick(false)} ${C.r}fix rejected — attacker ${fix.attackStatus}, owner ${fix.legitStatus}${C.x}`);
+    } else {
+      console.log(`    ${C.d}no fixed build present — skipped${C.x}`);
+    }
 
-  // ---- CHECK ----
-  t = performance.now();
-  const trident = {
-    marker: !!finding && !!finding.markerMasked && finding.markerMasked !== "none",
-    forgedDiscriminator: !!finding && [401, 403].includes(finding.evidence.controlForgedStatus),
-    selfRelocating: !!finding,
-  };
-  stage("CHECK", performance.now() - t);
-  console.log(`    ${tick(trident.marker)} collision-safe marker       ${C.d}victim-only field, absent from attacker data${C.x}`);
-  console.log(`    ${tick(trident.forgedDiscriminator)} forged-token discriminator  ${C.d}wrong-secret token rejected (${finding?.evidence.controlForgedStatus ?? "—"}) → authorization flaw${C.x}`);
-  console.log(`    ${tick(trident.selfRelocating)} self-relocating             ${C.d}re-discovered ${finding?.resource ?? "—"}, reproduced ×2${C.x}`);
-  console.log(`      ${C.d}deterministic · no LLM in the proof path · decided by status + bytes + identity${C.x}`);
+    t = performance.now();
+    trident = {
+      marker: !!finding.markerMasked && finding.markerMasked !== "none",
+      forgedDiscriminator: [401, 403].includes(finding.evidence.controlForgedStatus),
+      selfRelocating: true,
+    };
+    stage("CHECK", performance.now() - t);
+    console.log(`    ${tick(trident.marker)} collision-safe marker       ${C.d}victim-only field, absent from attacker data${C.x}`);
+    console.log(`    ${tick(trident.forgedDiscriminator)} forged-token discriminator  ${C.d}wrong-secret token rejected (${finding.evidence.controlForgedStatus}) → authorization flaw${C.x}`);
+    console.log(`    ${tick(trident.selfRelocating)} self-relocating             ${C.d}re-discovered ${finding.resource}, reproduced ×2${C.x}`);
+    console.log(`      ${C.d}deterministic · no LLM in the proof path · decided by status + bytes + identity${C.x}`);
+  }
 
   // ---- REMEMBER ----
   t = performance.now();
@@ -159,6 +177,9 @@ export async function verifyApp(dir: string): Promise<any> {
     target: dir,
     app,
     generatedAt: new Date().toISOString(),
+    verdict,
+    exitCode,
+    discoveryError,
     frozen,
     caught: !!finding,
     finding: finding
@@ -188,9 +209,14 @@ export async function verifyApp(dir: string): Promise<any> {
   stage("REMEMBER", performance.now() - t);
   console.log(`    ${C.d}wrote web/src/data/verify.json — the proof lives in the repo, survives a session restart${C.x}`);
 
+  const vc = verdict === "VULNERABLE" ? C.r : verdict === "INCONCLUSIVE" ? C.y : C.g;
+  console.log(`\n  ${C.b}VERDICT: ${vc}${verdict}${C.x}${C.b} (exit ${exitCode})${C.x}`);
   const tot = ((Date.now() - started) / 1000).toFixed(1);
   console.log(
-    `\n  ${C.d}${benchmark ? `${benchmark.provable} of ${benchmark.total} apps forgeable · ` : ""}0 false positives · ${tot}s total · localhost · synthetic data${C.x}\n`,
+    `  ${C.d}${benchmark ? `${benchmark.provable} of ${benchmark.total} apps forgeable · ` : ""}0 false positives on the evaluated set · ${tot}s · localhost · synthetic data${C.x}`,
+  );
+  console.log(
+    `  ${C.d}re-discovery is dictionary-based (known names + API prefixes), not semantic — an unknown rename is INCONCLUSIVE, never a false SECURE${C.x}\n`,
   );
   return result;
 }

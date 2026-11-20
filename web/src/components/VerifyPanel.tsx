@@ -124,6 +124,11 @@ export default function VerifyPanel() {
               </span>
             )}
           </div>
+          <p className="mt-4 border-t border-hair pt-4 text-[11px] leading-relaxed text-mutefg">
+            Scope: re-discovery is dictionary-based (known resource nouns + API prefixes), not semantic — a rename to an
+            unknown noun returns <span className="text-dimfg">INCONCLUSIVE</span>, never a false{" "}
+            <span className="text-dimfg">SECURE</span>. 0 false positives is by construction on the evaluated set.
+          </p>
         </div>
       </div>
     </section>

@@ -21,8 +21,12 @@ async function main() {
     return;
   }
   if (cmd === "verify" && arg) {
-    if (process.argv.includes("--watch")) await watchApp(arg);
-    else await verifyApp(arg);
+    if (process.argv.includes("--watch")) {
+      await watchApp(arg); // tolerant of non-zero verdicts; keeps watching
+    } else {
+      const r = await verifyApp(arg);
+      process.exitCode = r.exitCode; // VULNERABLE=1 · INCONCLUSIVE=2 · SECURE=0
+    }
     return;
   }
   console.error("usage: sudarshan scan <dir> | sudarshan scan-all <appsDir> | sudarshan secret-all <appsDir> | sudarshan verify <dir> [--watch]");
