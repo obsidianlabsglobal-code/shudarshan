@@ -1,251 +1,199 @@
 {
   "toolName": "sudarshan",
-  "apps": 1,
-  "totalFindings": 6,
+  "appsDir": "eval/apps",
+  "total": 23,
+  "scanned": 23,
+  "leaked": 0,
+  "clean": 23,
+  "unscannable": 0,
+  "totalRecordsExposed": 0,
   "falsePositives": 0,
+  "avgSecondsPerApp": 1.014,
   "results": [
     {
+      "app": "app-01",
       "toolName": "sudarshan",
-      "target": "http://127.0.0.1:4700",
-      "findings": [
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "A",
-          "attacker": "B",
-          "resource": "/api/appointments/a-1001",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX76",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-1001",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200,
-            "testFile": "/tmp/claude-0/-home-user-shudarshan/64a6aa80-08ff-5a53-aafb-e242c6c5a334/scratchpad/apps/victim/sudarshan-tests/bola-a-1001.test.ts"
-          }
-        },
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "A",
-          "attacker": "B",
-          "resource": "/api/appointments/a-1002",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX76",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-1002",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200
-          }
-        },
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "A",
-          "attacker": "B",
-          "resource": "/api/appointments/a-1003",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX76",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-1003",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200
-          }
-        },
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "B",
-          "attacker": "A",
-          "resource": "/api/appointments/a-2001",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX67",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-2001",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200
-          }
-        },
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "B",
-          "attacker": "A",
-          "resource": "/api/appointments/a-2002",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX67",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-2002",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200
-          }
-        },
-        {
-          "attackClass": "BOLA",
-          "target": "http://127.0.0.1:4700",
-          "victim": "B",
-          "attacker": "A",
-          "resource": "/api/appointments/a-2003",
-          "leakedFields": [
-            "id",
-            "owner_id",
-            "patient_name",
-            "phone",
-            "date",
-            "doctor",
-            "reason_for_visit"
-          ],
-          "markerMasked": "98XXXXXX67",
-          "reproduced": true,
-          "evidence": {
-            "attackRequest": {
-              "method": "GET",
-              "url": "http://127.0.0.1:4700/api/appointments/a-2003",
-              "headers": {
-                "accept": "application/json",
-                "authorization": "Bearer <redacted>"
-              }
-            },
-            "provingStatus": 200,
-            "controlOwnStatus": 200,
-            "controlNoAuthStatus": 401,
-            "controlForgedStatus": 401
-          },
-          "remediation": {
-            "template": "ownership-check",
-            "reattackResult": "blocked",
-            "fixOutcome": "VALID",
-            "reattackStatus": 403,
-            "ownControlStatus": 200
-          }
-        }
-      ],
+      "target": "http://127.0.0.1:3001",
+      "findings": [],
       "falsePositives": 0,
-      "totalDurationMs": 989
+      "totalDurationMs": 1053
+    },
+    {
+      "app": "app-02",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3002",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1057
+    },
+    {
+      "app": "app-03",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3003",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1058
+    },
+    {
+      "app": "app-04",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3004",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1024
+    },
+    {
+      "app": "app-05",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3005",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1039
+    },
+    {
+      "app": "app-06",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3006",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1031
+    },
+    {
+      "app": "app-07",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3007",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1019
+    },
+    {
+      "app": "app-08",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3008",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1042
+    },
+    {
+      "app": "app-09",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3009",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1053
+    },
+    {
+      "app": "app-11",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3011",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 999
+    },
+    {
+      "app": "app-12",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3012",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1058
+    },
+    {
+      "app": "app-13",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3013",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1054
+    },
+    {
+      "app": "app-14",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3014",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 800
+    },
+    {
+      "app": "app-15",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3015",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1017
+    },
+    {
+      "app": "app-16",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3016",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1051
+    },
+    {
+      "app": "app-17",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3017",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1001
+    },
+    {
+      "app": "app-18",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3018",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 998
+    },
+    {
+      "app": "app-19",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3019",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1001
+    },
+    {
+      "app": "app-20",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3020",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1024
+    },
+    {
+      "app": "app-21",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3021",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1055
+    },
+    {
+      "app": "app-22",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3022",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 837
+    },
+    {
+      "app": "app-24",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3024",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1038
+    },
+    {
+      "app": "app-25",
+      "toolName": "sudarshan",
+      "target": "http://127.0.0.1:3025",
+      "findings": [],
+      "falsePositives": 0,
+      "totalDurationMs": 1014
     }
-  ]
+  ],
+  "unscannableApps": []
 }
