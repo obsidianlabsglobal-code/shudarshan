@@ -1,0 +1,9 @@
+{
+  "source": "secret-all.json",
+  "attackClass": "HARDCODED_SECRET",
+  "apps": 23,
+  "forgeable": 6,
+  "cleanForThisTest": 17,
+  "falsePositives": 0,
+  "label": "6/23 apps forgeable · 17/23 clean for this test · 0 false positives on the evaluated set, by construction"
+}
