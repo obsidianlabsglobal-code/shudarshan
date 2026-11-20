@@ -136,8 +136,10 @@ export default function AttackStory() {
             return (
               <li
                 key={s.k}
-                className={`rounded-2xl border p-6 transition-all duration-500 ${
-                  on ? "translate-y-0 border-hair bg-panel opacity-100" : "translate-y-2 border-transparent opacity-30"
+                className={`p-6 transition-all duration-500 ${
+                  on
+                    ? "surface translate-y-0 opacity-100"
+                    : "translate-y-2 rounded-2xl border border-transparent opacity-30"
                 }`}
               >
                 <div className="flex items-baseline gap-3">

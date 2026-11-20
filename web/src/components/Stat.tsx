@@ -1,4 +1,5 @@
 import { CountUp } from "./CountUp";
+import { SpotlightCard } from "./SpotlightCard";
 import { dash } from "../lib/loader";
 
 type Tone = "red" | "green" | "neutral";
@@ -30,7 +31,7 @@ export function Stat({
   suffix?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-hair bg-panel p-7">
+    <SpotlightCard className="p-7">
       <div className="text-sm font-medium text-mutefg">{label}</div>
       <div className="mt-4 flex items-baseline gap-2">
         <span className={`mono text-6xl font-semibold tracking-tight ${toneClass[tone]}`}>
@@ -42,6 +43,6 @@ export function Stat({
         )}
       </div>
       {sub && <div className="mt-3 text-sm text-dimfg">{sub}</div>}
-    </div>
+    </SpotlightCard>
   );
 }

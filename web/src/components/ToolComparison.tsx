@@ -62,7 +62,7 @@ export default function ToolComparison() {
           Only one tool could <span className="text-red">prove</span> it.
         </h2>
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-hair">
+        <div className="surface mt-12 overflow-hidden rounded-2xl">
           {/* header */}
           <div className="hidden grid-cols-[1.4fr_1fr_0.8fr_0.8fr] gap-4 border-b border-hair bg-panel px-6 py-3 text-xs uppercase tracking-wider text-mutefg sm:grid">
             <div>Tool</div>

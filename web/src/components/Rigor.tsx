@@ -1,5 +1,6 @@
 import { stats, type StatBlock } from "../lib/loader";
 import { useInView } from "../lib/useInView";
+import { SpotlightCard } from "./SpotlightCard";
 
 const AXIS_MAX = 0.3; // 30% — enough to show these intervals clearly
 
@@ -60,7 +61,7 @@ export default function Rigor() {
 
         <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-3">
           {blocks.map(({ label, stat }) => (
-            <div key={label} className="rounded-2xl border border-hair bg-panel p-7">
+            <SpotlightCard key={label} className="p-7">
               <div className="text-sm font-medium text-mutefg">{label}</div>
               <div className="mono mt-4 text-5xl font-semibold tracking-tight">
                 {stat ? (
@@ -73,11 +74,11 @@ export default function Rigor() {
                 )}
               </div>
               {stat ? <CIBar block={stat} active={inView} /> : null}
-            </div>
+            </SpotlightCard>
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-hair/70 bg-panel/50 p-6">
+        <div className="mt-12 surface p-6">
           <div className="text-xs font-medium uppercase tracking-[0.2em] text-mutefg">Scope &amp; limits</div>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-dimfg">
             n = 23 apps, one model (claude-sonnet-5-5), one architecture (JWT auth over REST CRUD), one prompt
