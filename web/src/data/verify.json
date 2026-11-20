@@ -1,7 +1,7 @@
 {
   "target": "victim/app-51",
   "app": "app-51",
-  "generatedAt": "2026-11-20T19:51:57.202Z",
+  "generatedAt": "2026-11-20T20:30:26.564Z",
   "frozen": {
     "verdict": "PASS",
     "path": "/records/rec-1001",
@@ -45,7 +45,7 @@
     "selfRelocating": true
   },
   "deterministic": true,
-  "totalDurationMs": 2414,
+  "totalDurationMs": 2599,
   "benchmark": {
     "provable": 6,
     "total": 23

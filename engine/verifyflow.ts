@@ -110,11 +110,11 @@ function printVerify(r: any) {
     `  FROZEN SAVED TEST   → ${fv ? C.r + "PASS  " + C.x : C.y + (r.frozen?.verdict ?? "—") + C.x} ${fv ? C.r + "✗ false safety" + C.x : ""} ${C.d}(hit ${r.frozen?.path} → ${r.frozen?.status}, assumed blocked)${C.x}`,
   );
   console.log(
-    `  SELF-RELOCATING     → ${r.caught ? C.g + "CAUGHT " + C.x + C.g + "✓" + C.x : C.r + "missed" + C.x} ${C.d}re-found ${f?.resource ?? "—"}, User ${f?.victim ?? "?"}'s record leaked${C.x}`,
+    `  SELF-RELOCATING     → ${r.caught ? C.g + "CAUGHT " + C.x + C.g + "✓" + C.x : C.r + "missed" + C.x} ${C.d}re-found ${f?.resource ?? "—"} — Attacker (${f?.attacker ?? "?"}) read Victim (${f?.victim ?? "?"})'s record${C.x}`,
   );
 
   if (f) {
-    console.log(`\n  ${C.b}User ${f.victim}'s private record (masked):${C.x}`);
+    console.log(`\n  ${C.b}Attacker (${f.attacker}) read Victim (${f.victim})'s private record — masked:${C.x}`);
     for (const [k, v] of Object.entries(f.leakedRecordMasked)) {
       if (k === "id" || k === "ownerId") continue;
       console.log(`    ${C.d}${k.padEnd(12)}${C.x} ${v}`);

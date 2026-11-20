@@ -1,8 +1,18 @@
 // FROZEN SAVED TEST — generated against the ORIGINAL app, when records lived at
-// /records/:id. It hard-codes that path and treats 401/403/404 as "blocked=safe"
-// (the classic saved-test weakness). After an AI moved records to /api/v2/items,
-// the old path 404s — so this test STILL reports PASS. That false safety is
-// exactly what Sudarshan's self-relocating engine exposes. Synthetic, localhost.
+// /records/:id. It hard-codes that path and treats 401/403/404 as "blocked=safe".
+// After an AI moved records to /api/v2/items, the old path 404s — so this test
+// STILL reports PASS. That false safety is exactly what Sudarshan's
+// self-relocating engine exposes. Synthetic, localhost.
+//
+// FAIR BASELINE — not a strawman. This mirrors the core weakness of the real
+// engine/to-test.ts generator: the resource path is frozen at generation time,
+// and a 401/403/404 on that path is read as "blocked = safe" (see to-test.ts's
+// own `blocked = [401,403,404].indexOf(status) !== -1`). It asserts only that the
+// specific exploit path is blocked — the common saved-test pattern. (to-test.ts
+// additionally requires the owner's own list to return 200; on a full route
+// rename that list also 404s, so to-test would report "app broke", still never
+// re-discovering the moved route or catching the leak. Either way the frozen
+// path is never re-checked — which is the point Sudarshan makes.)
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";

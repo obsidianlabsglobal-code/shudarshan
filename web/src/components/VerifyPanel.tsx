@@ -83,7 +83,7 @@ export default function VerifyPanel() {
             >
               <div className="flex items-center justify-between">
                 <div className="text-xs font-medium uppercase tracking-wider text-red">
-                  User {f?.victim}'s private record — leaked
+                  Attacker ({f?.attacker}) read Victim ({f?.victim})'s private record
                 </div>
                 <div className="text-[10px] text-mutefg">masked</div>
               </div>
