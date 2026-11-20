@@ -1,0 +1,20 @@
+{
+  "name": "contact-book",
+  "version": "1.0.0",
+  "description": "Small contact book REST API with JWT login (Express + TypeScript)",
+  "private": true,
+  "type": "module",
+  "main": "server.ts",
+  "scripts": {
+    "start": "tsx server.ts",
+    "seed": "tsx server.ts --seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.0"
+  }
+}

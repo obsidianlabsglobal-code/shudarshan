@@ -84,15 +84,19 @@ function extractArray(body: any): any[] | null {
 }
 
 // The proof value: a string field from the victim's own record, length >= 8,
-// that appears in NONE of the attacker's own records. A match in the attacker's
-// cross-user response is then unambiguously the victim's data.
-function collisionSafeMarker(victimRecord: any, attackerRecords: any[]): string | null {
+// that (1) is NOT the record's id and does not overlap the requested id — so
+// the attacker cannot "prove" a leak with a value it already supplied — and
+// (2) appears in NONE of the attacker's own records. A match in the attacker's
+// cross-user response is then unambiguously the victim's own data.
+function collisionSafeMarker(victimRecord: any, attackerRecords: any[], requestedId: string): string | null {
   const attackerBlob = JSON.stringify(attackerRecords);
   let best: string | null = null;
-  for (const v of Object.values(victimRecord ?? {})) {
-    if (typeof v === "string" && v.length >= 8 && !attackerBlob.includes(v)) {
-      if (!best || v.length > best.length) best = v;
-    }
+  for (const [key, v] of Object.entries(victimRecord ?? {})) {
+    if (key === "id") continue; // never the primary key
+    if (typeof v !== "string" || v.length < 8) continue;
+    if (v === requestedId || v.includes(requestedId) || requestedId.includes(v)) continue; // not the requested id
+    if (attackerBlob.includes(v)) continue; // must be absent from the attacker's own data
+    if (!best || v.length > best.length) best = v;
   }
   return best;
 }
@@ -241,7 +245,7 @@ export async function scanByDiscovery(dir: string): Promise<ScanResult> {
         for (const rec of victim.records) {
           const id = rec?.id;
           if (id === undefined || id === null) continue;
-          const marker = collisionSafeMarker(rec, attacker.records);
+          const marker = collisionSafeMarker(rec, attacker.records, String(id));
           if (!marker) continue; // cannot prove safely -> make no claim
           const url = `${base}${d.listPath}/${id}`;
           const attack1 = await send("GET", url, attacker.token);
