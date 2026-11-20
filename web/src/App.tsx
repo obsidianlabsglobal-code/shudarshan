@@ -1,6 +1,7 @@
 import Hero from "./components/Hero";
 import DotGrid from "./components/DotGrid";
 import ToolComparison from "./components/ToolComparison";
+import AttackStory from "./components/AttackStory";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Hero />
         <DotGrid />
         <ToolComparison />
+        <AttackStory />
       </main>
 
       <footer className="border-t border-hair">
