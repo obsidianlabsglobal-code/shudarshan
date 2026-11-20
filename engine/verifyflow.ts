@@ -17,7 +17,7 @@ import type { Finding } from "../shared/finding";
 
 const C = { g: "\x1b[32m", r: "\x1b[31m", d: "\x1b[2m", b: "\x1b[1m", y: "\x1b[33m", x: "\x1b[0m" };
 const tick = (ok: boolean) => (ok ? C.g + "✓" + C.x : C.r + "✗" + C.x);
-const fmtMs = (ms: number) => (ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`);
+const fmtMs = (ms: number) => (ms < 1 ? "<1ms" : ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function stage(name: string, ms: number) {
@@ -34,7 +34,10 @@ interface FrozenResult {
 async function runFrozenTest(dir: string): Promise<FrozenResult | null> {
   const testsDir = join(dir, "sudarshan-tests");
   if (!existsSync(testsDir)) return null;
-  const file = readdirSync(testsDir).find((f) => f.endsWith(".test.ts"));
+  // Prefer the labelled frozen baseline so a stray generated test can never
+  // change the gate's frozen result.
+  const files = readdirSync(testsDir).filter((f) => f.endsWith(".test.ts"));
+  const file = files.find((f) => f.startsWith("frozen")) ?? files[0];
   if (!file) return null;
   const tsx = join(process.cwd(), "node_modules", ".bin", "tsx");
   return new Promise((resolve) => {
@@ -92,12 +95,12 @@ export async function verifyApp(dir: string): Promise<any> {
   console.log(`${C.d}the app was rewritten by an AI — a deterministic re-check, no LLM in the proof path${C.x}`);
 
   // ---- PROVE ----
-  let t = Date.now();
+  let t = performance.now();
   const frozen = await runFrozenTest(dir);
   await sleep(1200); // let the frozen test's server release the port
   const scan = await scanByDiscovery(dir);
   const finding: Finding | null = scan.findings.find((f) => f.victim !== f.attacker) ?? scan.findings[0] ?? null;
-  stage("PROVE", Date.now() - t);
+  stage("PROVE", performance.now() - t);
   const fv = frozen?.verdict === "PASS";
   console.log(
     `    frozen saved test   ${fv ? C.r + "PASS  " + C.x + C.r + "✗ false safety" + C.x : C.y + (frozen?.verdict ?? "—") + C.x} ${C.d}(${frozen?.path} → ${frozen?.status}, assumed blocked)${C.x}`,
@@ -105,6 +108,7 @@ export async function verifyApp(dir: string): Promise<any> {
   console.log(
     `    self-relocating     ${finding ? C.g + "CAUGHT" + C.x + " " + C.g + "✓" + C.x : C.r + "missed" + C.x} ${C.d}re-found ${finding?.resource ?? "—"}${C.x}`,
   );
+  console.log(`    ${C.d}frozen failure modes: false-pass (shown) or "app broke" (the real to-test.ts) — neither re-finds the route${C.x}`);
   if (finding) {
     console.log(`    ${C.b}Attacker (${finding.attacker}) read Victim (${finding.victim})'s private record — masked:${C.x}`);
     const rec = finding.leakedRecordMasked ?? {};
@@ -115,9 +119,9 @@ export async function verifyApp(dir: string): Promise<any> {
   }
 
   // ---- FIX ----
-  t = Date.now();
+  t = performance.now();
   const fix = finding ? await runFixStage(dir, finding) : { applied: false };
-  stage("FIX", Date.now() - t);
+  stage("FIX", performance.now() - t);
   if (fix.applied && fix.accepted) {
     console.log(`    ${C.d}ownership check restored → attacker ${fix.attackStatus} · owner ${fix.legitStatus}${C.x}`);
     console.log(`    ${tick(true)} fix accepted ${C.d}— legitimate user still 200${C.x}`);
@@ -130,20 +134,20 @@ export async function verifyApp(dir: string): Promise<any> {
   }
 
   // ---- CHECK ----
-  t = Date.now();
+  t = performance.now();
   const trident = {
     marker: !!finding && !!finding.markerMasked && finding.markerMasked !== "none",
     forgedDiscriminator: !!finding && [401, 403].includes(finding.evidence.controlForgedStatus),
     selfRelocating: !!finding,
   };
-  stage("CHECK", Date.now() - t);
+  stage("CHECK", performance.now() - t);
   console.log(`    ${tick(trident.marker)} collision-safe marker       ${C.d}victim-only field, absent from attacker data${C.x}`);
   console.log(`    ${tick(trident.forgedDiscriminator)} forged-token discriminator  ${C.d}wrong-secret token rejected (${finding?.evidence.controlForgedStatus ?? "—"}) → authorization flaw${C.x}`);
   console.log(`    ${tick(trident.selfRelocating)} self-relocating             ${C.d}re-discovered ${finding?.resource ?? "—"}, reproduced ×2${C.x}`);
   console.log(`      ${C.d}deterministic · no LLM in the proof path · decided by status + bytes + identity${C.x}`);
 
   // ---- REMEMBER ----
-  t = Date.now();
+  t = performance.now();
   let benchmark: any = null;
   try {
     const s = JSON.parse(readFileSync("eval/results/secret-all.json", "utf8"));
@@ -181,7 +185,7 @@ export async function verifyApp(dir: string): Promise<any> {
   };
   mkdirSync("web/src/data", { recursive: true });
   writeFileSync("web/src/data/verify.json", JSON.stringify(result, null, 2));
-  stage("REMEMBER", Date.now() - t);
+  stage("REMEMBER", performance.now() - t);
   console.log(`    ${C.d}wrote web/src/data/verify.json — the proof lives in the repo, survives a session restart${C.x}`);
 
   const tot = ((Date.now() - started) / 1000).toFixed(1);

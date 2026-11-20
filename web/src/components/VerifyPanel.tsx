@@ -59,8 +59,9 @@ export default function VerifyPanel() {
               <span className="text-red">→ {frozen?.status}</span>
             </div>
             <p className="mt-3 text-xs text-mutefg">
-              The route moved, so the hard-coded path 404s — and the frozen test reads 404 as “blocked.” It never
-              re-checks.
+              The route moved, so the hard-coded path 404s and this saved test reads 404 as “blocked.” A stricter
+              saved test (the real <span className="mono">to-test.ts</span>) instead FAILs as “app broke” — either way
+              it never re-finds the route.
             </p>
           </div>
 
