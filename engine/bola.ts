@@ -1,125 +1,73 @@
 // Orchestrate the two-user BOLA attack from a per-app config (sudarshan.json).
-// Log in each user, harvest a victim's own resource ids, replay each as every
-// other user, run it through verify.ts, and emit a Finding only when proven and
-// reproduced. No LLM anywhere in this path.
+// Emits a Finding only when proven and reproduced, names the leaked fields,
+// and prints a readable report. No LLM anywhere in this path.
 
-import { readFileSync } from "node:fs";
-import { send, redactRequest } from "./probe";
-import { extractMarker, judge } from "./verify";
+import {
+  loadConfig, loginAll, harvestIds, runCandidate, resourceUrl,
+  type Config, type Session, type CandidateResult,
+} from "./attack";
+import { redactRequest } from "./probe";
 import { maskMarker, type Finding } from "../shared/finding";
 
-interface ConfigUser {
-  label: string;
-  username: string;
-  password: string;
-}
-interface Config {
-  baseUrl: string;
-  login: { path: string };
-  listOwn: string;
-  resourceTemplate: string; // contains "{id}"
-  users: ConfigUser[];
-}
-interface Session {
-  label: string;
-  userId: string;
-  token: string;
-}
-
-function resourceUrl(cfg: Config, id: string): string {
-  return cfg.baseUrl + cfg.resourceTemplate.replace("{id}", id);
-}
-
-async function login(cfg: Config, u: ConfigUser): Promise<Session> {
-  const res = await fetch(cfg.baseUrl + cfg.login.path, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: u.username, password: u.password }),
-  });
-  if (res.status !== 200) throw new Error(`login failed for ${u.label}: HTTP ${res.status}`);
-  const data: any = await res.json();
-  if (!data.token || !data.userId) throw new Error(`login for ${u.label} returned no token/userId`);
-  return { label: u.label, userId: data.userId, token: data.token };
-}
-
-async function harvestIds(cfg: Config, s: Session): Promise<string[]> {
-  const r = await send("GET", cfg.baseUrl + cfg.listOwn, s.token);
-  const items: any = JSON.parse(r.body);
-  if (!Array.isArray(items)) return [];
-  return items.map((x: any) => x.id).filter((id: unknown): id is string => typeof id === "string");
-}
-
-interface Attempt {
-  victim: string;
-  attacker: string;
+interface Row {
+  victim: Session;
+  attacker: Session;
   id: string;
-  proven: boolean;
-  reasons: string[];
+  cand: CandidateResult;
 }
 
 async function main() {
-  const cfgPath = process.argv[2] ?? "victim/sudarshan.json";
-  const cfg: Config = JSON.parse(readFileSync(cfgPath, "utf8"));
+  const cfg = loadConfig(process.argv[2] ?? "victim/sudarshan.json");
+  const sessions = await loginAll(cfg);
 
-  const sessions: Session[] = [];
-  for (const u of cfg.users) sessions.push(await login(cfg, u));
-
-  const attempts: Attempt[] = [];
-  const findings: Finding[] = [];
-
+  const rows: Row[] = [];
   for (const victim of sessions) {
     const ids = await harvestIds(cfg, victim);
     for (const attacker of sessions) {
       if (attacker.userId === victim.userId) continue;
       for (const id of ids) {
-        const url = resourceUrl(cfg, id);
-        const victimRes = await send("GET", url, victim.token);
-        const marker = extractMarker(victimRes.body);
-        const attack1 = await send("GET", url, attacker.token);
-        const attack2 = await send("GET", url, attacker.token);
-        const controlOwn = await send("GET", cfg.baseUrl + cfg.listOwn, attacker.token);
-        const controlNoAuth = await send("GET", url);
-
-        const verdict = judge(
-          attacker.userId, victim.userId, marker,
-          attack1, attack2, controlOwn, controlNoAuth,
-        );
-        attempts.push({ victim: victim.label, attacker: attacker.label, id, proven: verdict.proven, reasons: verdict.reasons });
-
-        if (verdict.proven) {
-          findings.push({
-            attackClass: "BOLA",
-            target: cfg.baseUrl,
-            victim: victim.label,
-            attacker: attacker.label,
-            resource: cfg.resourceTemplate.replace("{id}", id),
-            markerMasked: marker ? maskMarker(marker) : "none",
-            reproduced: true,
-            evidence: {
-              attackRequest: redactRequest("GET", url, attacker.token),
-              provingStatus: attack1.status,
-              controlOwnStatus: controlOwn.status,
-              controlNoAuthStatus: controlNoAuth.status,
-            },
-          });
-        }
+        rows.push({ victim, attacker, id, cand: await runCandidate(cfg, victim, attacker, id) });
       }
     }
   }
-
-  report(cfg, attempts, findings);
+  report(cfg, rows);
 }
 
-function report(cfg: Config, attempts: Attempt[], findings: Finding[]) {
+// Fields worth calling out to a judge — the structural keys are dropped.
+function sensitive(fields: string[]): string[] {
+  return fields.filter((f) => f !== "id" && f !== "owner_id");
+}
+
+function report(cfg: Config, rows: Row[]) {
+  const proven = rows.filter((r) => r.cand.verdict.proven);
+  const findings: Finding[] = proven.map((r) => ({
+    attackClass: "BOLA",
+    target: cfg.baseUrl,
+    victim: r.victim.label,
+    attacker: r.attacker.label,
+    resource: cfg.resourceTemplate.replace("{id}", r.id),
+    markerMasked: r.cand.marker ? maskMarker(r.cand.marker) : "none",
+    reproduced: true,
+    evidence: {
+      attackRequest: redactRequest("GET", resourceUrl(cfg, r.id), r.attacker.token),
+      provingStatus: r.cand.attack1.status,
+      controlOwnStatus: r.cand.controlOwn.status,
+      controlNoAuthStatus: r.cand.controlNoAuth.status,
+    },
+  }));
+
   console.log("\n==================== BOLA ENGINE REPORT ====================");
   console.log(`target:   ${cfg.baseUrl}`);
-  console.log(`attempts: ${attempts.length}   proven findings: ${findings.length}`);
+  console.log(`attempts: ${rows.length}   proven findings: ${findings.length}`);
   console.log("------------------------------------------------------------");
-  for (const f of findings) {
+  for (let i = 0; i < proven.length; i++) {
+    const r = proven[i];
+    const f = findings[i];
     console.log(`[BOLA] user ${f.attacker} read user ${f.victim}'s ${f.resource}`);
+    console.log(`       leaked fields: ${r.cand.leakedFields.join(", ")}`);
+    console.log(`       → Another patient's ${sensitive(r.cand.leakedFields).join(", ")} were readable (values withheld).`);
     console.log(`       proof marker (masked): ${f.markerMasked}`);
     console.log(`       attack=${f.evidence.provingStatus}  own-control=${f.evidence.controlOwnStatus}  no-auth-control=${f.evidence.controlNoAuthStatus}  reproduced=${f.reproduced}`);
-    console.log(`       request: ${f.evidence.attackRequest.method} ${f.evidence.attackRequest.url}  (authorization: ${f.evidence.attackRequest.headers.authorization})`);
   }
   if (findings.length === 0) console.log("No BOLA leak proven.");
   console.log("============================================================\n");

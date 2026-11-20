@@ -9,7 +9,10 @@
   "scripts": {
     "victim:start": "tsx victim/server.ts",
     "victim:reset": "tsx victim/seed.ts",
-    "attack": "tsx engine/bola.ts"
+    "attack": "tsx engine/bola.ts",
+    "fix": "tsx engine/fix.ts",
+    "reprove": "tsx engine/reprove.ts",
+    "to-test": "tsx engine/to-test.ts"
   },
   "repository": {
     "type": "git",
