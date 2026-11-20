@@ -21,6 +21,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Display face for headings — Inter Tight, tight tracking (from both refs) */
+h1,
+h2 {
+  font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
 /* Instrument-grade numerals */
 .tnum {
   font-variant-numeric: tabular-nums;
@@ -88,6 +95,46 @@ body {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
     0 1px 2px rgba(0, 0, 0, 0.4),
     0 14px 34px -12px rgba(0, 0, 0, 0.72);
+}
+
+/* ---- Orbit field: hairline rings with slow signals, monochrome + one red.
+   Technique adapted from the MIT-licensed halyard-copilot-landing
+   (Kedhareswer Naidu); re-rendered austere for a near-black canvas. ---- */
+.bg-orbits {
+  position: absolute;
+  left: 50%;
+  top: -360px;
+  width: 1500px;
+  height: 1500px;
+  margin-left: -750px;
+  -webkit-mask-image: radial-gradient(closest-side, #000 56%, transparent);
+  mask-image: radial-gradient(closest-side, #000 60%, transparent);
+}
+.bg-orbits .ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.bg-orbits .ring-faint {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.035);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.bg-orbits .sat {
+  fill: #d6def0;
+  filter: drop-shadow(0 0 5px rgba(214, 222, 240, 0.85));
+}
+.bg-orbits .sat-red {
+  fill: #ff453a;
+  filter: drop-shadow(0 0 7px rgba(255, 69, 58, 0.9));
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-orbits .sat,
+  .bg-orbits .sat-red {
+    display: none;
+  }
 }
 
 /* ---- Spotlight: a faint cool glow that follows the cursor, on hover ---- */
