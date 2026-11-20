@@ -3,10 +3,11 @@
 // fix from template -> re-attack identically -> save exploit as a test ->
 // write <dir>/sudarshan.result.json in the shared Results shape. No LLM.
 
-import { writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ChildProcess } from "node:child_process";
 import { startServer, stopServer } from "./serverctl";
+import { scanByDiscovery } from "./discover";
 import {
   loadConfig, loginAll, harvestIds, runCandidate, resourceUrl,
   type Session, type CandidateResult,
@@ -32,7 +33,7 @@ function sensitive(fields: string[]): string[] {
   return fields.filter((f) => f !== "id" && f !== "owner_id");
 }
 
-export async function scan(dir: string): Promise<ScanResult> {
+export async function scan(dir: string, write = true): Promise<ScanResult> {
   const t0 = Date.now();
   const cfg = loadConfig(join(dir, "sudarshan.json"));
   const managed = !!(cfg.app && cfg.app.startFile);
@@ -123,8 +124,10 @@ export async function scan(dir: string): Promise<ScanResult> {
     falsePositives: 0,
     totalDurationMs: Date.now() - t0,
   };
-  writeFileSync(join(dir, "sudarshan.result.json"), JSON.stringify(result, null, 2));
-  printReport(dir, result);
+  if (write) {
+    writeFileSync(join(dir, "sudarshan.result.json"), JSON.stringify(result, null, 2));
+    printReport(dir, result);
+  }
   return result;
 }
 
@@ -153,24 +156,77 @@ function printReport(dir: string, r: ScanResult) {
   console.log(`==========================================================\n`);
 }
 
+interface AppOutcome {
+  app: string;
+  result?: ScanResult;
+  unscannable?: { status: "generated-but-unscannable"; reason: string };
+}
+
 export async function scanAll(appsDir: string): Promise<void> {
-  const subs = readdirSync(appsDir, { withFileTypes: true }).filter(
-    (d) => d.isDirectory() || d.isSymbolicLink(),
-  );
-  const results: ScanResult[] = [];
-  for (const s of subs) {
-    const dir = join(appsDir, s.name);
-    if (!existsSync(join(dir, "sudarshan.json"))) continue;
-    results.push(await scan(dir));
+  const names = readdirSync(appsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() || d.isSymbolicLink())
+    .map((d) => d.name)
+    .sort();
+
+  const outcomes: AppOutcome[] = [];
+  for (const name of names) {
+    const dir = join(appsDir, name);
+    const cfgPath = join(dir, "sudarshan.json");
+    if (!existsSync(cfgPath)) continue;
+    try {
+      // Apps that declare the full contract (baseUrl) run config-driven;
+      // credential-only apps go through endpoint discovery.
+      const raw = JSON.parse(readFileSync(cfgPath, "utf8"));
+      const result = raw.baseUrl ? await scan(dir, false) : await scanByDiscovery(dir);
+      outcomes.push({ app: name, result });
+    } catch (e) {
+      outcomes.push({
+        app: name,
+        unscannable: { status: "generated-but-unscannable", reason: e instanceof Error ? e.message : String(e) },
+      });
+    }
   }
-  mkdirSync("eval/results", { recursive: true });
+
+  const scanned = outcomes.filter((o): o is AppOutcome & { result: ScanResult } => !!o.result);
+  const leaked = scanned.filter((o) => o.result.findings.length > 0);
+  const clean = scanned.filter((o) => o.result.findings.length === 0);
+  const unscannable = outcomes.filter((o) => o.unscannable);
+  const totalRecords = scanned.reduce((n, o) => n + o.result.findings.length, 0);
+  const totalFP = scanned.reduce((n, o) => n + o.result.falsePositives, 0);
+  const avgMs = scanned.length ? scanned.reduce((n, o) => n + o.result.totalDurationMs, 0) / scanned.length : 0;
+
   const combined = {
     toolName: "sudarshan",
-    apps: results.length,
-    totalFindings: results.reduce((n, r) => n + r.findings.length, 0),
-    falsePositives: results.reduce((n, r) => n + r.falsePositives, 0),
-    results,
+    appsDir,
+    total: outcomes.length,
+    scanned: scanned.length,
+    leaked: leaked.length,
+    clean: clean.length,
+    unscannable: unscannable.length,
+    totalRecordsExposed: totalRecords,
+    falsePositives: totalFP,
+    avgSecondsPerApp: Number((avgMs / 1000).toFixed(3)),
+    results: scanned.map((o) => ({ app: o.app, ...o.result })),
+    unscannableApps: unscannable.map((o) => ({ app: o.app, ...o.unscannable! })),
   };
+
+  mkdirSync("eval/results", { recursive: true });
   writeFileSync("eval/results/sudarshan-all.json", JSON.stringify(combined, null, 2));
-  console.log(`\nwrote eval/results/sudarshan-all.json  (${results.length} app(s), ${combined.totalFindings} finding(s))`);
+
+  console.log(`\n================ SUDARSHAN · scan-all ${appsDir} ================`);
+  console.log(`apps found:        ${combined.total}`);
+  console.log(`scanned:           ${combined.scanned}  (leaked ${combined.leaked}, clean ${combined.clean})`);
+  console.log(`unscannable:       ${combined.unscannable}`);
+  console.log(`records exposed:   ${combined.totalRecordsExposed}`);
+  console.log(`false positives:   ${combined.falsePositives}`);
+  console.log(`avg seconds/app:   ${combined.avgSecondsPerApp}`);
+  if (leaked.length) {
+    console.log(`--- leaked apps ---`);
+    for (const o of leaked) console.log(`  ${o.app}: ${o.result.findings.length} finding(s)`);
+  }
+  if (unscannable.length) {
+    console.log(`--- unscannable ---`);
+    for (const o of unscannable) console.log(`  ${o.app}: ${o.unscannable!.reason}`);
+  }
+  console.log(`\nwrote eval/results/sudarshan-all.json`);
 }

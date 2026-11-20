@@ -27,9 +27,18 @@ export function killTree(p: ChildProcess): void {
   }
 }
 
-export async function startServer(baseUrl: string, file: string): Promise<ChildProcess> {
+export async function startServer(
+  baseUrl: string,
+  file: string,
+  opts: { env?: NodeJS.ProcessEnv; cwd?: string } = {},
+): Promise<ChildProcess> {
   const tsx = process.cwd() + "/node_modules/.bin/tsx";
-  const proc = spawn(tsx, [file], { stdio: "ignore", detached: true });
+  const proc = spawn(tsx, [file], {
+    stdio: "ignore",
+    detached: true,
+    cwd: opts.cwd,
+    env: opts.env ? { ...process.env, ...opts.env } : process.env,
+  });
   for (let i = 0; i < 60; i++) {
     if (await portUp(baseUrl)) return proc;
     await sleep(200);
