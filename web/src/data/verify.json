@@ -1,7 +1,7 @@
 {
   "target": "victim/app-51",
   "app": "app-51",
-  "generatedAt": "2026-11-20T20:45:54.184Z",
+  "generatedAt": "2026-11-20T20:51:14.571Z",
   "frozen": {
     "verdict": "PASS",
     "path": "/records/rec-1001",
@@ -55,5 +55,5 @@
     "provable": 6,
     "total": 23
   },
-  "totalDurationMs": 3094
+  "totalDurationMs": 2711
 }
