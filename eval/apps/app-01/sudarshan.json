@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "password": "Alice-Reads-2024!"
+    },
+    {
+      "name": "Bob",
+      "email": "bob@example.org",
+      "password": "Bob-Pages-2024!"
+    }
+  ]
+}
