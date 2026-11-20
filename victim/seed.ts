@@ -16,12 +16,12 @@ export interface User {
 
 export interface Appointment {
   id: string;
-  ownerId: string;
-  patient: string;
+  owner_id: string;
+  patient_name: string;
   phone: string;
   date: string;
   doctor: string;
-  reason: string; // sensitive note — this is what the attack leaks
+  reason_for_visit: string; // sensitive note — this is what the attack leaks
 }
 
 export interface State {
@@ -51,12 +51,12 @@ export const CANONICAL: State = {
     },
   ],
   appointments: [
-    { id: "a-1001", ownerId: "u-anita", patient: "Anita Deshpande", phone: "9845012376", date: "2026-11-24", doctor: "Dr. Sharma", reason: "Follow-up on thyroid medication" },
-    { id: "a-1002", ownerId: "u-anita", patient: "Anita Deshpande", phone: "9845012376", date: "2026-12-02", doctor: "Dr. Sharma", reason: "Persistent migraine review" },
-    { id: "a-1003", ownerId: "u-anita", patient: "Anita Deshpande", phone: "9845012376", date: "2026-12-15", doctor: "Dr. Sharma", reason: "Routine blood pressure check" },
-    { id: "a-2001", ownerId: "u-rohan", patient: "Rohan Mehta", phone: "9820114567", date: "2026-11-25", doctor: "Dr. Sharma", reason: "Sports injury assessment, left knee" },
-    { id: "a-2002", ownerId: "u-rohan", patient: "Rohan Mehta", phone: "9820114567", date: "2026-12-05", doctor: "Dr. Sharma", reason: "Annual health check-up" },
-    { id: "a-2003", ownerId: "u-rohan", patient: "Rohan Mehta", phone: "9820114567", date: "2026-12-18", doctor: "Dr. Sharma", reason: "Allergy consultation" },
+    { id: "a-1001", owner_id: "u-anita", patient_name: "Anita Deshpande", phone: "9845012376", date: "2026-11-24", doctor: "Dr. Sharma", reason_for_visit: "Follow-up on thyroid medication" },
+    { id: "a-1002", owner_id: "u-anita", patient_name: "Anita Deshpande", phone: "9845012376", date: "2026-12-02", doctor: "Dr. Sharma", reason_for_visit: "Persistent migraine review" },
+    { id: "a-1003", owner_id: "u-anita", patient_name: "Anita Deshpande", phone: "9845012376", date: "2026-12-15", doctor: "Dr. Sharma", reason_for_visit: "Routine blood pressure check" },
+    { id: "a-2001", owner_id: "u-rohan", patient_name: "Rohan Mehta", phone: "9820114567", date: "2026-11-25", doctor: "Dr. Sharma", reason_for_visit: "Sports injury assessment, left knee" },
+    { id: "a-2002", owner_id: "u-rohan", patient_name: "Rohan Mehta", phone: "9820114567", date: "2026-12-05", doctor: "Dr. Sharma", reason_for_visit: "Annual health check-up" },
+    { id: "a-2003", owner_id: "u-rohan", patient_name: "Rohan Mehta", phone: "9820114567", date: "2026-12-18", doctor: "Dr. Sharma", reason_for_visit: "Allergy consultation" },
   ],
 };
 

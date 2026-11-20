@@ -49,7 +49,7 @@ app.post("/api/login", (req, res) => {
 
 // Correct: only the caller's own appointments.
 app.get("/api/appointments", auth, (req: Authed, res) => {
-  res.json(state.appointments.filter((a) => a.ownerId === req.userId));
+  res.json(state.appointments.filter((a) => a.owner_id === req.userId));
 });
 
 // FLAW 1 (IDOR): authenticated, but never checks the appointment belongs to
@@ -149,7 +149,7 @@ const PAGE = `<!doctype html>
     document.getElementById('list').innerHTML = items.map(a =>
       '<div class="appt"><div class="date">' + a.date + '</div>' +
       '<div class="doc">' + a.doctor + '</div>' +
-      '<div class="reason">' + a.reason + '</div></div>').join('');
+      '<div class="reason">' + a.reason_for_visit + '</div></div>').join('');
   }
   function logout() {
     token = null;
