@@ -2,7 +2,8 @@
 // restart the patched app, re-run the IDENTICAL attack, and decide whether the
 // fix truly blocked it WITHOUT breaking the legitimate user. No LLM in the path.
 
-import { spawn, type ChildProcess } from "node:child_process";
+import type { ChildProcess } from "node:child_process";
+import { startServer, stopServer } from "./serverctl";
 import {
   loadConfig, loginAll, harvestIds, runCandidate,
   type Config, type Session, type CandidateResult,
@@ -13,50 +14,6 @@ import { maskMarker } from "../shared/finding";
 const BASE = "http://127.0.0.1:4700";
 const VULN = "victim/server.ts";
 const FIXED = "victim/.server.fixed.ts";
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-async function portUp(): Promise<boolean> {
-  try {
-    await fetch(BASE + "/");
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Kill the whole detached process group: tsx spawns a child node process, so
-// killing only the tsx wrapper would leave the real server holding the port.
-function killTree(p: ChildProcess) {
-  try {
-    if (p.pid) process.kill(-p.pid, "SIGKILL");
-  } catch {
-    try {
-      p.kill("SIGKILL");
-    } catch {
-      /* already gone */
-    }
-  }
-}
-
-async function startServer(file: string): Promise<ChildProcess> {
-  const tsx = process.cwd() + "/node_modules/.bin/tsx";
-  const proc = spawn(tsx, [file], { stdio: "ignore", detached: true });
-  for (let i = 0; i < 60; i++) {
-    if (await portUp()) return proc;
-    await sleep(200);
-  }
-  killTree(proc);
-  throw new Error(`server did not start: ${file}`);
-}
-
-async function stopServer(p: ChildProcess) {
-  killTree(p);
-  for (let i = 0; i < 50; i++) {
-    if (!(await portUp())) return; // wait until the port is actually free
-    await sleep(200);
-  }
-}
 
 interface Target {
   victim: Session;
@@ -89,10 +46,10 @@ async function main() {
   const cfg = loadConfig(process.argv[2] ?? "victim/sudarshan.json");
 
   // BEFORE — prove the leak on the vulnerable app.
-  let proc = await startServer(VULN);
+  let proc: ChildProcess = await startServer(BASE, VULN);
   const sessions = await loginAll(cfg);
   const found = await findFirstProven(cfg, sessions);
-  await stopServer(proc);
+  await stopServer(BASE, proc);
   if (!found) {
     console.log("No proven finding to reprove.");
     return;
@@ -107,12 +64,12 @@ async function main() {
   }
 
   // AFTER — restart the patched app and re-run the identical attack.
-  proc = await startServer(FIXED);
+  proc = await startServer(BASE, FIXED);
   const fixedSessions = await loginAll(cfg);
   const victim = fixedSessions.find((s) => s.label === t.victim.label)!;
   const attacker = fixedSessions.find((s) => s.label === t.attacker.label)!;
   const after = await runCandidate(cfg, victim, attacker, t.id);
-  await stopServer(proc);
+  await stopServer(BASE, proc);
 
   const blockedExploit = [401, 403, 404].includes(after.attack1.status);
   const brokeApp = after.controlOwn.status !== 200;
@@ -138,8 +95,7 @@ function printBeforeAfter(
   console.log(`\nBEFORE  (vulnerable)`);
   console.log(`  user ${t.attacker.label} → GET ${resource}  (as ${t.attacker.label}, not the owner)`);
   console.log(`  status ${before.attack1.status}   reproduced=${before.attack2.status === before.attack1.status}`);
-  console.log(`  leaked fields: ${before.leakedFields.join(", ")}`);
-  console.log(`  → Another patient's ${sensitive(before.leakedFields).join(", ")} were readable (values withheld).`);
+  console.log(`  leaked fields: ${sensitive(before.leakedFields).join(", ")}`);
   console.log(`  proof marker (masked): ${markerMasked}`);
   console.log(`\nAFTER   (template fix applied, app restarted)`);
   console.log(`  identical request → status ${after.attack1.status}   (reattackResult: ${reattackResult})`);

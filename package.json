@@ -12,7 +12,8 @@
     "attack": "tsx engine/bola.ts",
     "fix": "tsx engine/fix.ts",
     "reprove": "tsx engine/reprove.ts",
-    "to-test": "tsx engine/to-test.ts"
+    "to-test": "tsx engine/to-test.ts",
+    "sudarshan": "tsx engine/cli.ts"
   },
   "repository": {
     "type": "git",

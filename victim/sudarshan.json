@@ -3,6 +3,7 @@
   "login": { "path": "/api/login" },
   "listOwn": "/api/appointments",
   "resourceTemplate": "/api/appointments/{id}",
+  "app": { "startFile": "server.ts", "fixFile": "server.ts", "fixedBuild": ".server.fixed.ts" },
   "users": [
     { "label": "A", "username": "anita@meditrack.test", "password": "anita-demo-2026" },
     { "label": "B", "username": "rohan@meditrack.test", "password": "rohan-demo-2026" }

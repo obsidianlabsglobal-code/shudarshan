@@ -46,6 +46,7 @@ function report(cfg: Config, rows: Row[]) {
     victim: r.victim.label,
     attacker: r.attacker.label,
     resource: cfg.resourceTemplate.replace("{id}", r.id),
+    leakedFields: r.cand.leakedFields,
     markerMasked: r.cand.marker ? maskMarker(r.cand.marker) : "none",
     reproduced: true,
     evidence: {
@@ -53,6 +54,7 @@ function report(cfg: Config, rows: Row[]) {
       provingStatus: r.cand.attack1.status,
       controlOwnStatus: r.cand.controlOwn.status,
       controlNoAuthStatus: r.cand.controlNoAuth.status,
+      controlForgedStatus: r.cand.controlForged.status,
     },
   }));
 
@@ -64,10 +66,9 @@ function report(cfg: Config, rows: Row[]) {
     const r = proven[i];
     const f = findings[i];
     console.log(`[BOLA] user ${f.attacker} read user ${f.victim}'s ${f.resource}`);
-    console.log(`       leaked fields: ${r.cand.leakedFields.join(", ")}`);
-    console.log(`       → Another patient's ${sensitive(r.cand.leakedFields).join(", ")} were readable (values withheld).`);
+    console.log(`       leaked fields: ${sensitive(r.cand.leakedFields).join(", ")}`);
     console.log(`       proof marker (masked): ${f.markerMasked}`);
-    console.log(`       attack=${f.evidence.provingStatus}  own-control=${f.evidence.controlOwnStatus}  no-auth-control=${f.evidence.controlNoAuthStatus}  reproduced=${f.reproduced}`);
+    console.log(`       attack=${f.evidence.provingStatus}  own=${f.evidence.controlOwnStatus}  no-auth=${f.evidence.controlNoAuthStatus}  forged=${f.evidence.controlForgedStatus}  reproduced=${f.reproduced}`);
   }
   if (findings.length === 0) console.log("No BOLA leak proven.");
   console.log("============================================================\n");

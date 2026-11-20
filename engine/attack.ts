@@ -1,5 +1,6 @@
-// Shared attack primitives. bola.ts and reprove.ts both call runCandidate so
-// the re-attack after a fix is byte-for-byte the same sequence as the original.
+// Shared attack primitives. bola.ts, reprove.ts and scan.ts all call
+// runCandidate so the re-attack after a fix is byte-for-byte the same sequence
+// as the original.
 
 import { readFileSync } from "node:fs";
 import { send } from "./probe";
@@ -12,12 +13,19 @@ export interface ConfigUser {
   password: string;
 }
 
+export interface AppControl {
+  startFile?: string; // relative to the app dir; if set, scan manages the process
+  fixFile?: string; // source file to patch
+  fixedBuild?: string; // where the patched build is written
+}
+
 export interface Config {
   baseUrl: string;
   login: { path: string };
   listOwn: string;
   resourceTemplate: string; // contains "{id}"
   users: ConfigUser[];
+  app?: AppControl;
 }
 
 export interface Session {
@@ -33,8 +41,13 @@ export interface CandidateResult {
   attack2: HttpResult;
   controlOwn: HttpResult;
   controlNoAuth: HttpResult;
+  controlForged: HttpResult;
   verdict: Verdict;
 }
+
+// A well-formed but invalid-signature JWT. A correctly built app rejects it.
+export const FORGED_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmb3JnZWQtdXNlciJ9.c2lnbmF0dXJlX2lzX2ludmFsaWQ";
 
 export function loadConfig(path: string): Config {
   return JSON.parse(readFileSync(path, "utf8")) as Config;
@@ -81,6 +94,9 @@ export function extractLeakedFields(r: HttpResult): string[] {
   }
 }
 
+// The full replay matrix for one candidate: victim reads own (for the marker),
+// attacker replays twice (reproduction), then anonymous and forged-token
+// controls. judge() turns these into a deterministic verdict.
 export async function runCandidate(
   cfg: Config,
   victim: Session,
@@ -88,13 +104,17 @@ export async function runCandidate(
   id: string,
 ): Promise<CandidateResult> {
   const url = resourceUrl(cfg, id);
-  const victimRes = await send("GET", url, victim.token); // victim reads own resource (for the marker)
+  const victimRes = await send("GET", url, victim.token);
   const marker = extractMarker(victimRes.body);
   const attack1 = await send("GET", url, attacker.token);
   const attack2 = await send("GET", url, attacker.token);
   const controlOwn = await send("GET", cfg.baseUrl + cfg.listOwn, attacker.token);
   const controlNoAuth = await send("GET", url);
-  const verdict = judge(attacker.userId, victim.userId, marker, attack1, attack2, controlOwn, controlNoAuth);
+  const controlForged = await send("GET", url, FORGED_TOKEN);
+  const verdict = judge(
+    attacker.userId, victim.userId, marker,
+    attack1, attack2, controlOwn, controlNoAuth, controlForged,
+  );
   const leakedFields = extractLeakedFields(attack1);
-  return { marker, leakedFields, attack1, attack2, controlOwn, controlNoAuth, verdict };
+  return { marker, leakedFields, attack1, attack2, controlOwn, controlNoAuth, controlForged, verdict };
 }
