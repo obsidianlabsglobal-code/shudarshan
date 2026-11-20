@@ -1,0 +1,436 @@
+{
+  "benchmark": "self-relocating re-discovery generalization across AI route-rewrites",
+  "generatedAt": "2026-11-20T23:38:37.360Z",
+  "scope": "testing/verification of our own synthetic apps on localhost; synthetic data; engine/ and victim/ unmodified",
+  "hypothesisFile": "eval/benchmark/HYPOTHESIS.md",
+  "honestLimit": "Synthetic apps generated to span rewrite structures — not a random sample of real repositories. Real-repo validation is roadmap. '0 false-secure' is measured on this evaluated set, not a population rate.",
+  "wilsonMethod": "Two-sided 95% Wilson score interval, z=1.959963984540054.",
+  "totals": {
+    "apps": 25,
+    "vulnerable": 21,
+    "secureControls": 4
+  },
+  "headline": {
+    "caught": {
+      "n": 8,
+      "of": 21,
+      "rate": 0.38095238095238093,
+      "ci95": {
+        "lower": 0.20751011368564493,
+        "upper": 0.5912134622488425
+      }
+    },
+    "inconclusive": {
+      "n": 13,
+      "of": 21,
+      "rate": 0.6190476190476191,
+      "ci95": {
+        "lower": 0.4087865377511576,
+        "upper": 0.7924898863143551
+      }
+    },
+    "falseSecure": {
+      "n": 0,
+      "of": 21,
+      "rate": 0,
+      "ci95": {
+        "lower": 0,
+        "upper": 0.154639018924847
+      },
+      "mustBeZero": true,
+      "pass": true
+    }
+  },
+  "secureControls": {
+    "n": 4,
+    "noLeakDetected": 4,
+    "falseAlarm": 0,
+    "falseAlarmMustBeZero": true,
+    "pass": true,
+    "noLeakDetectedCI95": {
+      "lower": 0.5101091635454027,
+      "upper": 1
+    }
+  },
+  "selfRelocatingByType": {
+    "A": {
+      "n": 8,
+      "caught": 8,
+      "inconclusive": 0,
+      "noLeakDetected": 0,
+      "allAsExpected": true,
+      "caughtRate": 1,
+      "caughtCI95": {
+        "lower": 0.6755924351161198,
+        "upper": 1
+      }
+    },
+    "B": {
+      "n": 5,
+      "caught": 0,
+      "inconclusive": 5,
+      "noLeakDetected": 0,
+      "allAsExpected": true,
+      "caughtRate": 0
+    },
+    "C": {
+      "n": 4,
+      "caught": 0,
+      "inconclusive": 4,
+      "noLeakDetected": 0,
+      "allAsExpected": true,
+      "caughtRate": 0
+    },
+    "D": {
+      "n": 4,
+      "caught": 0,
+      "inconclusive": 4,
+      "noLeakDetected": 0,
+      "allAsExpected": true,
+      "caughtRate": 0
+    },
+    "SECURE": {
+      "n": 4,
+      "caught": 0,
+      "inconclusive": 0,
+      "noLeakDetected": 4,
+      "allAsExpected": true,
+      "caughtRate": 0
+    }
+  },
+  "frozenSavedTest": {
+    "caughtOnVulnerable": 0,
+    "ofVulnerable": 21,
+    "falsePassLenient": 21,
+    "misfireStrict": 21,
+    "note": "Frozen saved test (engine/to-test.ts assertion logic) never re-finds a moved route: it false-passes (lenient: attack path 404 read as 'blocked') or misfires as 'app broke' (strict: owner list also 404s). Caught 0 leaks across vulnerable apps."
+  },
+  "staticScanner": {
+    "gitleaks": {
+      "available": true,
+      "totalFindings": 0,
+      "authzFindings": 0,
+      "note": "secrets scanner — cannot represent object-level authorization; 0 BOLA findings by design"
+    },
+    "semgrep": {
+      "autoRuleset": {
+        "available": false,
+        "reason": "networked community ruleset (--config auto) unreachable in this offline sandbox"
+      },
+      "genericRule": {
+        "available": true,
+        "file": "eval/benchmark/idor-generic.yaml",
+        "scannedFiles": 25,
+        "appsFlagged": 25,
+        "secureControlsFlagged": 4,
+        "discriminatesVulnerableFromSecure": false,
+        "note": "generic IDOR pattern flagged 25 apps including 4 of the secure controls — no ownership model, so it cannot separate vulnerable from secure"
+      }
+    },
+    "discriminatingAuthzVerdicts": 0,
+    "ofVulnerable": 21,
+    "note": "Conventional static scanners give no verdict that separates the 21 seeded-vulnerable apps from the 4 secure controls. gitleaks (secrets) finds 0 — it has no authorization model. semgrep's networked community ruleset is unreachable offline; a generic local IDOR pattern fires on every id-lookup (vulnerable AND secure), so it cannot discriminate. Only the dynamic self-relocating prover distinguishes them."
+  },
+  "rows": [
+    {
+      "app": "bench-100",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/v2/items",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-101",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/v1/records",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-102",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/notes",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-103",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /v2/tasks",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-104",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/v2/logs",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-105",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /entries",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-106",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/v1/bills",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-107",
+      "type": "A",
+      "label": "in-dict resource + known prefix → /api/v2/contacts",
+      "expected": "VULNERABLE",
+      "vulnerable": true,
+      "selfRelocating": "VULNERABLE",
+      "selfRelocatingExit": 1,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-108",
+      "type": "B",
+      "label": "unfamiliar resource name → /api/v2/clinical-files",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-109",
+      "type": "B",
+      "label": "unfamiliar resource name → /api/manifests",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-110",
+      "type": "B",
+      "label": "unfamiliar resource name → /dossiers",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-111",
+      "type": "B",
+      "label": "unfamiliar resource name → /api/v1/charts",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-112",
+      "type": "B",
+      "label": "unfamiliar resource name → /api/v2/encounters",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-113",
+      "type": "C",
+      "label": "nested route → /api/v2/clinic/items",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-114",
+      "type": "C",
+      "label": "nested route → /api/v1/org/records",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-115",
+      "type": "C",
+      "label": "nested route → /api/portal/notes",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-116",
+      "type": "C",
+      "label": "nested route → /v2/tenant/tasks",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-117",
+      "type": "D",
+      "label": "id as query param on /api/v2/items",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-118",
+      "type": "D",
+      "label": "id as query param on /api/records",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-119",
+      "type": "D",
+      "label": "deeply-nested list envelope on /api/v2/items",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-120",
+      "type": "D",
+      "label": "deeply-nested list envelope on /api/v1/records",
+      "expected": "INCONCLUSIVE",
+      "vulnerable": true,
+      "selfRelocating": "INCONCLUSIVE",
+      "selfRelocatingExit": 2,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "false_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-121",
+      "type": "SECURE",
+      "label": "ownership intact → /api/v2/items",
+      "expected": "NO_LEAK_DETECTED",
+      "vulnerable": false,
+      "selfRelocating": "NO_LEAK_DETECTED",
+      "selfRelocatingExit": 0,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "correct_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-122",
+      "type": "SECURE",
+      "label": "ownership intact → /api/v1/records",
+      "expected": "NO_LEAK_DETECTED",
+      "vulnerable": false,
+      "selfRelocating": "NO_LEAK_DETECTED",
+      "selfRelocatingExit": 0,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "correct_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-123",
+      "type": "SECURE",
+      "label": "ownership intact → /api/notes",
+      "expected": "NO_LEAK_DETECTED",
+      "vulnerable": false,
+      "selfRelocating": "NO_LEAK_DETECTED",
+      "selfRelocatingExit": 0,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "correct_pass",
+      "frozenStrict": "misfire"
+    },
+    {
+      "app": "bench-124",
+      "type": "SECURE",
+      "label": "ownership intact → /tasks",
+      "expected": "NO_LEAK_DETECTED",
+      "vulnerable": false,
+      "selfRelocating": "NO_LEAK_DETECTED",
+      "selfRelocatingExit": 0,
+      "selfRelocatingCorrect": true,
+      "frozenLenient": "correct_pass",
+      "frozenStrict": "misfire"
+    }
+  ]
+}

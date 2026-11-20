@@ -1,0 +1,19 @@
+# A GENERIC, off-the-shelf-style IDOR/BOLA heuristic for semgrep. It flags a
+# handler that reads an object from a collection by a client-supplied id. It is
+# deliberately NOT tailored to our seeded regression: it cannot see whether an
+# ownership check is present, so it matches both vulnerable and secure handlers.
+# Used only because semgrep's networked community ruleset (--config auto) is
+# unreachable in this offline sandbox. The point it makes: a static pattern rule
+# has no object-ownership model, so it cannot separate a seeded-vulnerable app
+# from a secure one — it either stays silent or flags everything.
+rules:
+  - id: idor-object-read-by-client-id
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >
+      A route handler reads an object by a client-supplied id. A static rule
+      cannot tell whether an object-level ownership/authorization check gates
+      this read (BOLA/IDOR), so this fires on secure and vulnerable code alike.
+    patterns:
+      - pattern: $ARR.find((...) => ...)
+      - pattern-inside: "app.get(..., (req, res) => { ... })"

@@ -1,0 +1,4 @@
+# Programmatically generated rewrite apps — regenerate with run-benchmark.ts.
+apps/
+# Scanner reports (regenerated each run).
+gitleaks-report.json
