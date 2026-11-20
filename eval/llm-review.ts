@@ -19,11 +19,13 @@ type ReviewResult = { toolName: string; target: string;
   findings: Array<{ type: string; endpoint: string; severity: string; verification: string }>;
   falsePositives: null; totalDurationMs: number; rawResponse: string };
 let results: ReviewResult[] = [];
-try {
-  const saved = JSON.parse(await readFile(outputPath, "utf8")) as { results: ReviewResult[] };
-  results = saved.results;
-} catch (error) {
-  if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+if (!process.argv.includes("--fresh")) {
+  try {
+    const saved = JSON.parse(await readFile(outputPath, "utf8")) as { results: ReviewResult[] };
+    results = saved.results;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
 }
 async function save(): Promise<void> {
   const output = { toolName: "llm-review", model, apps: results.length,
