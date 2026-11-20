@@ -1,0 +1,53 @@
+{
+  "method": "Two-sided 95% Wilson score interval, z=1.959963984540054. Rates use apps or regression runs as the stated denominator. A zero numerator does not imply a zero upper bound.",
+  "appsLeaked": {
+    "label": "Apps leaked",
+    "numerator": 0,
+    "denominator": 23,
+    "rate": 0,
+    "confidenceInterval95": {
+      "lower": 0,
+      "upper": 0.14311661845042686
+    }
+  },
+  "falsePositives": {
+    "sudarshan": {
+      "label": "Sudarshan false-positive apps",
+      "numerator": 0,
+      "denominator": 23,
+      "rate": 0,
+      "confidenceInterval95": {
+        "lower": 0,
+        "upper": 0.14311661845042686
+      }
+    },
+    "llmReview": {
+      "label": "LLM false-positive claims",
+      "status": "unavailable",
+      "reason": "No LLM authorization claims were tested",
+      "numerator": null,
+      "denominator": null,
+      "rate": null,
+      "confidenceInterval95": null
+    },
+    "gitleaks": {
+      "label": "Gitleaks false-positive claims",
+      "status": "unavailable",
+      "reason": "Gitleaks reported zero claims, so claim-level rate has no denominator",
+      "numerator": null,
+      "denominator": null,
+      "rate": null,
+      "confidenceInterval95": null
+    }
+  },
+  "regressionOwnershipLoss": {
+    "label": "Regression ownership loss",
+    "numerator": 0,
+    "denominator": 10,
+    "rate": 0,
+    "confidenceInterval95": {
+      "lower": 0,
+      "upper": 0.2775327998628892
+    }
+  }
+}
