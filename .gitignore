@@ -23,3 +23,5 @@ victim/.server.fixed.ts
 # Runtime state written by the generated eval apps (never committed)
 eval/apps/**/data.json
 eval/apps/**/db.json
+eval/regression/**/data.json
+eval/regression/**/db.json
