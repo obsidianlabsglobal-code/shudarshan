@@ -4,13 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0A0A0B",
-        panel: "#111113",
-        panel2: "#141417",
-        hair: "#1E1E22",
-        mutefg: "#8A8A93",
-        dimfg: "#B4B4BB",
-        fg: "#EDEDEF",
+        ink: "#14110B",
+        panel: "#1B1710",
+        panel2: "#221C12",
+        hair: "#2C2518",
+        mutefg: "#9A9284",
+        dimfg: "#C6BEAF",
+        fg: "#F3EFE7",
+        saffron: "#B45309",
+        saffron2: "#E0932F",
         red: "#FF453A",
         green: "#30D158",
       },

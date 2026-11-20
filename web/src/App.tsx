@@ -1,6 +1,8 @@
 import Background from "./components/Background";
 import Hero from "./components/Hero";
+import VerifyPanel from "./components/VerifyPanel";
 import DotGrid from "./components/DotGrid";
+import { Chakra } from "./components/Chakra";
 import ToolComparison from "./components/ToolComparison";
 import AttackStory from "./components/AttackStory";
 import Rigor from "./components/Rigor";
@@ -14,7 +16,7 @@ export default function App() {
         <header className="sticky top-0 z-20 border-b border-hair/70 bg-ink/70 backdrop-blur-xl">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-red shadow-[0_0_10px_rgba(255,69,58,0.7)]" />
+              <Chakra size={18} className="text-saffron" />
               <span className="font-semibold tracking-tight">Sudarshan</span>
             </div>
             <div className="hidden text-sm text-mutefg sm:block">Proof-carrying API security</div>
@@ -23,6 +25,7 @@ export default function App() {
 
         <main>
           <Hero />
+          <VerifyPanel />
           <DotGrid />
           <ToolComparison />
           <AttackStory />
