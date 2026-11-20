@@ -112,6 +112,11 @@ export default function VerifyPanel() {
             <span className="flex items-center gap-2">
               <Chakra size={13} className="text-saffron" /> Deterministic · no LLM in the proof path
             </span>
+            {v.fix?.accepted && (
+              <span className="flex items-center gap-1.5">
+                <span className="text-green">✓</span> fix accepted — legitimate user still {v.fix.legitStatus}
+              </span>
+            )}
             {v.benchmark && (
               <span className="rounded-full border border-hair px-2.5 py-0.5 mono text-dimfg">
                 {v.benchmark.provable} of {v.benchmark.total} apps forgeable · 0 false positives

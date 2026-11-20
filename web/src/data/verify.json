@@ -1,7 +1,7 @@
 {
   "target": "victim/app-51",
   "app": "app-51",
-  "generatedAt": "2026-11-20T20:30:26.564Z",
+  "generatedAt": "2026-11-20T20:36:36.637Z",
   "frozen": {
     "verdict": "PASS",
     "path": "/records/rec-1001",
@@ -39,15 +39,21 @@
       "forged": 401
     }
   },
+  "fix": {
+    "applied": true,
+    "attackStatus": 404,
+    "legitStatus": 200,
+    "accepted": true
+  },
   "trident": {
     "marker": true,
     "forgedDiscriminator": true,
     "selfRelocating": true
   },
   "deterministic": true,
-  "totalDurationMs": 2599,
   "benchmark": {
     "provable": 6,
     "total": 23
-  }
+  },
+  "totalDurationMs": 3076
 }
