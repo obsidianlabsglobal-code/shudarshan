@@ -28,6 +28,7 @@ export interface Finding {
   resource: string; // endpoint path that leaked
   leakedFields: string[]; // disclosed field NAMES only, never values
   markerMasked: string; // victim's proving marker, MASKED for screen
+  leakedRecordMasked?: Record<string, string>; // the leaked record, every value masked
   reproduced: boolean; // true only when proven twice
   evidence: Evidence;
   remediation?: Remediation; // present once a fix has been attempted

@@ -4,6 +4,7 @@
 
 import { scan, scanAll } from "./scan";
 import { scanSecretAll } from "./secret";
+import { verifyApp } from "./verifyflow";
 
 async function main() {
   const [cmd, arg] = process.argv.slice(2);
@@ -19,7 +20,11 @@ async function main() {
     await scanSecretAll(arg);
     return;
   }
-  console.error("usage: sudarshan scan <dir> | sudarshan scan-all <appsDir> | sudarshan secret-all <appsDir>");
+  if (cmd === "verify" && arg) {
+    await verifyApp(arg);
+    return;
+  }
+  console.error("usage: sudarshan scan <dir> | sudarshan scan-all <appsDir> | sudarshan secret-all <appsDir> | sudarshan verify <dir>");
   process.exit(2);
 }
 

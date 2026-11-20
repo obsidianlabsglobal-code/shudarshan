@@ -83,6 +83,22 @@ function extractArray(body: any): any[] | null {
   return null;
 }
 
+// The leaked record with EVERY value masked — visceral evidence, never raw.
+function maskRecord(body: string): Record<string, string> {
+  try {
+    const o = JSON.parse(body);
+    if (!o || typeof o !== "object") return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(o)) {
+      if (v === null || v === undefined || typeof v === "object") continue;
+      out[k] = maskMarker(String(v));
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 // The proof value: a string field from the victim's own record, length >= 8,
 // that (1) is NOT the record's id and does not overlap the requested id — so
 // the attacker cannot "prove" a leak with a value it already supplied — and
@@ -272,6 +288,7 @@ export async function scanByDiscovery(dir: string): Promise<ScanResult> {
               resource: `${d.listPath}/${id}`,
               leakedFields: extractLeakedFields(attack1),
               markerMasked: maskMarker(marker),
+              leakedRecordMasked: maskRecord(attack1.body),
               reproduced: true,
               evidence: {
                 attackRequest: redactRequest("GET", url, attacker.token),

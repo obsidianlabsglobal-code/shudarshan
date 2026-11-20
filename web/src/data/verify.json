@@ -1,0 +1,53 @@
+{
+  "target": "victim/app-51",
+  "app": "app-51",
+  "generatedAt": "2026-11-20T19:51:57.202Z",
+  "frozen": {
+    "verdict": "PASS",
+    "path": "/records/rec-1001",
+    "status": 404,
+    "assumedBlocked": true
+  },
+  "caught": true,
+  "finding": {
+    "resource": "/api/v2/items/rec-1001",
+    "victim": "A",
+    "attacker": "B",
+    "markerMasked": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+    "leakedFields": [
+      "id",
+      "ownerId",
+      "patient",
+      "phone",
+      "accountNo",
+      "reason",
+      "amount"
+    ],
+    "leakedRecordMasked": {
+      "id": "reXXXX01",
+      "ownerId": "u-XXXta",
+      "patient": "AnXXXXXXXXXXXde",
+      "phone": "98XXXXXX76",
+      "accountNo": "INXXXXXXXXX10",
+      "reason": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+      "amount": "XXXX"
+    },
+    "controls": {
+      "attack": 200,
+      "own": 200,
+      "anon": 401,
+      "forged": 401
+    }
+  },
+  "trident": {
+    "marker": true,
+    "forgedDiscriminator": true,
+    "selfRelocating": true
+  },
+  "deterministic": true,
+  "totalDurationMs": 2414,
+  "benchmark": {
+    "provable": 6,
+    "total": 23
+  }
+}
