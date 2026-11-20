@@ -1,7 +1,7 @@
 {
   "target": "victim/app-51",
   "app": "app-51",
-  "generatedAt": "2026-11-20T21:09:50.520Z",
+  "generatedAt": "2026-11-20T21:21:08.838Z",
   "verdict": "VULNERABLE",
   "exitCode": 1,
   "discoveryError": null,
@@ -58,5 +58,5 @@
     "provable": 6,
     "total": 23
   },
-  "totalDurationMs": 2626
+  "totalDurationMs": 2961
 }

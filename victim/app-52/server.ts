@@ -3,7 +3,7 @@
 // is NOT in the scanner's resource dictionary: /api/v2/manifests. Ownership is
 // dropped here too, so a leak *exists* — but dictionary-based discovery cannot
 // locate the endpoint. Correct behaviour is INCONCLUSIVE (exit 2), NEVER a
-// false SECURE. Login still works; only the collection name is unknown.
+// false NO_LEAK_DETECTED. Login still works; only the collection name is unknown.
 import express from "express";
 import jwt from "jsonwebtoken";
 

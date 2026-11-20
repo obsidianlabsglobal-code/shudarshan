@@ -108,7 +108,7 @@ export async function verifyApp(dir: string): Promise<any> {
     discoveryError = e instanceof Error ? e.message : String(e);
   }
   // Verdict/exit codes live in this wrapper — the proof logic (verify.ts) is untouched.
-  const verdict: "VULNERABLE" | "SECURE" | "INCONCLUSIVE" = discoveryError ? "INCONCLUSIVE" : finding ? "VULNERABLE" : "SECURE";
+  const verdict: "VULNERABLE" | "NO_LEAK_DETECTED" | "INCONCLUSIVE" = discoveryError ? "INCONCLUSIVE" : finding ? "VULNERABLE" : "NO_LEAK_DETECTED";
   const exitCode = verdict === "VULNERABLE" ? 1 : verdict === "INCONCLUSIVE" ? 2 : 0;
   stage("PROVE", performance.now() - t);
   const fv = frozen?.verdict === "PASS";
@@ -118,11 +118,11 @@ export async function verifyApp(dir: string): Promise<any> {
   if (verdict === "VULNERABLE") {
     console.log(`    self-relocating     ${C.g}CAUGHT${C.x} ${C.g}✓${C.x} ${C.d}re-found ${finding?.resource ?? "—"}${C.x}`);
     console.log(`    ${C.d}frozen failure modes: false-pass (shown) or "app broke" (the real to-test.ts) — neither re-finds the route${C.x}`);
-  } else if (verdict === "SECURE") {
-    console.log(`    self-relocating     ${C.g}SECURE${C.x} ${C.d}discovery succeeded; no cross-user leak — ownership holds${C.x}`);
+  } else if (verdict === "NO_LEAK_DETECTED") {
+    console.log(`    self-relocating     ${C.g}NO_LEAK_DETECTED${C.x} ${C.d}discovery succeeded; no supported BOLA leak reproduced (tested: per-object ownership)${C.x}`);
   } else {
     console.log(`    self-relocating     ${C.y}INCONCLUSIVE${C.x} ${C.d}discovery could not find the endpoint: ${discoveryError}${C.x}`);
-    console.log(`    ${C.d}a rename to an unknown resource name is INCONCLUSIVE — never reported as SECURE${C.x}`);
+    console.log(`    ${C.d}a rename to an unknown resource name is INCONCLUSIVE — never reported as NO_LEAK_DETECTED${C.x}`);
   }
   if (finding) {
     console.log(`    ${C.b}Attacker (${finding.attacker}) read Victim (${finding.victim})'s private record — masked:${C.x}`);
@@ -210,13 +210,17 @@ export async function verifyApp(dir: string): Promise<any> {
   console.log(`    ${C.d}wrote web/src/data/verify.json — the proof lives in the repo, survives a session restart${C.x}`);
 
   const vc = verdict === "VULNERABLE" ? C.r : verdict === "INCONCLUSIVE" ? C.y : C.g;
-  console.log(`\n  ${C.b}VERDICT: ${vc}${verdict}${C.x}${C.b} (exit ${exitCode})${C.x}`);
+  const vnote =
+    verdict === "NO_LEAK_DETECTED"
+      ? " — no supported BOLA leak reproduced (tested: per-object ownership; not a full security audit)"
+      : "";
+  console.log(`\n  ${C.b}VERDICT: ${vc}${verdict}${C.x}${C.b} (exit ${exitCode})${C.x}${C.d}${vnote}${C.x}`);
   const tot = ((Date.now() - started) / 1000).toFixed(1);
   console.log(
     `  ${C.d}${benchmark ? `${benchmark.provable} of ${benchmark.total} apps forgeable · ` : ""}0 false positives on the evaluated set · ${tot}s · localhost · synthetic data${C.x}`,
   );
   console.log(
-    `  ${C.d}re-discovery is dictionary-based (known names + API prefixes), not semantic — an unknown rename is INCONCLUSIVE, never a false SECURE${C.x}\n`,
+    `  ${C.d}re-discovery is dictionary-based (known names + API prefixes), not semantic — an unknown rename is INCONCLUSIVE, never a false NO_LEAK_DETECTED${C.x}\n`,
   );
   return result;
 }

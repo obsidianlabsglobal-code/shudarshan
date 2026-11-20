@@ -25,7 +25,7 @@ async function main() {
       await watchApp(arg); // tolerant of non-zero verdicts; keeps watching
     } else {
       const r = await verifyApp(arg);
-      process.exitCode = r.exitCode; // VULNERABLE=1 · INCONCLUSIVE=2 · SECURE=0
+      process.exitCode = r.exitCode; // VULNERABLE=1 · INCONCLUSIVE=2 · NO_LEAK_DETECTED=0
     }
     return;
   }
