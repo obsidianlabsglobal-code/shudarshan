@@ -1,0 +1,169 @@
+{
+  "toolName": "gitleaks",
+  "apps": 23,
+  "totalFindings": 0,
+  "totalDurationMs": 24947,
+  "results": [
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-01",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1393
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-02",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1024
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-03",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 959
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-04",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1003
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-05",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1015
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-06",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 959
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-07",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 956
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-08",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1123
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-09",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 987
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-11",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1038
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-12",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 970
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-13",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1314
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-14",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1292
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-15",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 980
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-16",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 913
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-17",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1012
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-18",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 933
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-19",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 921
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-20",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 931
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-21",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1056
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-22",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1220
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-24",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1316
+    },
+    {
+      "toolName": "gitleaks",
+      "target": "eval/apps/app-25",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 1632
+    }
+  ]
+}

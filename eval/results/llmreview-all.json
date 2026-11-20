@@ -1,0 +1,405 @@
+{
+  "toolName": "llm-review",
+  "model": "claude-sonnet-5-5",
+  "apps": 23,
+  "totalFindings": 33,
+  "totalDurationMs": 149648,
+  "results": [
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-01",
+      "findings": [
+        {
+          "type": "Hardcoded default credentials (seed users with known passwords, also written in plaintext to sudarshan.json)",
+          "endpoint": "POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force, plus event-loop DoS via synchronous scrypt)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7095,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded default credentials (seed users with known passwords, also written in plaintext to sudarshan.json)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"high\"},\n  {\"type\": \"No rate limiting or lockout on login (brute force, plus event-loop DoS via synchronous scrypt)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-02",
+      "findings": [
+        {
+          "type": "Hardcoded fallback JWT secret (forgeable tokens for any user if JWT_SECRET is unset)",
+          "endpoint": "All authenticated endpoints (/expenses, /expenses/:id) via requireAuth and POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "Hardcoded default user credentials seeded into the data store",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force, plus CPU-blocking synchronous scrypt enabling DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6587,
+      "rawResponse": "```json\n[\n  {\n    \"type\": \"Hardcoded fallback JWT secret (forgeable tokens for any user if JWT_SECRET is unset)\",\n    \"endpoint\": \"All authenticated endpoints (/expenses, /expenses/:id) via requireAuth and POST /auth/login\",\n    \"severity\": \"high\"\n  },\n  {\n    \"type\": \"Hardcoded default user credentials seeded into the data store\",\n    \"endpoint\": \"POST /auth/login\",\n    \"severity\": \"medium\"\n  },\n  {\n    \"type\": \"No rate limiting or lockout on login (brute force, plus CPU-blocking synchronous scrypt enabling DoS)\",\n    \"endpoint\": \"POST /auth/login\",\n    \"severity\": \"medium\"\n  }\n]\n```"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-03",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 5836,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-04",
+      "findings": [
+        {
+          "type": "Missing rate limiting / brute-force protection (scrypt computed synchronously, so login floods also block the event loop)",
+          "endpoint": "POST /login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "User enumeration via timing difference (unknown email runs scrypt twice, known email once)",
+          "endpoint": "POST /login",
+          "severity": "low",
+          "verification": "unverified"
+        },
+        {
+          "type": "Hardcoded default credentials auto-seeded when no data file exists",
+          "endpoint": "POST /login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Unbounded resource consumption (no cap on habits per user or check-ins added one at a time; the full DB is rewritten synchronously on every write)",
+          "endpoint": "POST /habits, POST /habits/:id/check-ins",
+          "severity": "low",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 9710,
+      "rawResponse": "[\n  {\"type\": \"Missing rate limiting / brute-force protection (scrypt computed synchronously, so login floods also block the event loop)\", \"endpoint\": \"POST /login\", \"severity\": \"medium\"},\n  {\"type\": \"User enumeration via timing difference (unknown email runs scrypt twice, known email once)\", \"endpoint\": \"POST /login\", \"severity\": \"low\"},\n  {\"type\": \"Hardcoded default credentials auto-seeded when no data file exists\", \"endpoint\": \"POST /login\", \"severity\": \"medium\"},\n  {\"type\": \"Unbounded resource consumption (no cap on habits per user or check-ins added one at a time; the full DB is rewritten synchronously on every write)\", \"endpoint\": \"POST /habits, POST /habits/:id/check-ins\", \"severity\": \"low\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-05",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 3953,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-06",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 4581,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-07",
+      "findings": [
+        {
+          "type": "Hardcoded default credentials (seeded users with passwords committed in source)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Missing rate limiting / brute force and CPU-bound DoS (synchronous scrypt blocks event loop on every unauthenticated login attempt)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7352,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded default credentials (seeded users with passwords committed in source)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"Missing rate limiting / brute force and CPU-bound DoS (synchronous scrypt blocks event loop on every unauthenticated login attempt)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-08",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 4853,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-09",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (seeded accounts with known passwords created automatically on first run)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force, plus CPU-blocking scryptSync on the event loop enables DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6463,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (seeded accounts with known passwords created automatically on first run)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"No rate limiting or lockout on login (brute force, plus CPU-blocking scryptSync on the event loop enables DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-11",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (seeded users with known plaintext passwords, also written to sudarshan.json)",
+          "endpoint": "POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force; synchronous scrypt also blocks the event loop, enabling DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7506,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (seeded users with known plaintext passwords, also written to sudarshan.json)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"high\"},\n  {\"type\": \"No rate limiting or lockout on login (brute force; synchronous scrypt also blocks the event loop, enabling DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-12",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 4735,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-13",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 6781,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-14",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (known seed accounts auto-created on first start, plaintext passwords also written to sudarshan.json)",
+          "endpoint": "POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (online brute force, and CPU-blocking synchronous scrypt enables unauthenticated DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "low",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7168,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (known seed accounts auto-created on first start, plaintext passwords also written to sudarshan.json)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"high\"},\n  {\"type\": \"No rate limiting or lockout on login (online brute force, and CPU-blocking synchronous scrypt enables unauthenticated DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"low\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-15",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 5488,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-16",
+      "findings": [
+        {
+          "type": "Hardcoded fallback JWT signing secret (token forgery when JWT_SECRET is unset)",
+          "endpoint": "All authenticated endpoints (/contacts, /contacts/:id), token issued by POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "Default/seeded credentials with known passwords (alice@example.com, bob@example.com)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force; synchronous scrypt also enables CPU/event-loop DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "low",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6102,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded fallback JWT signing secret (token forgery when JWT_SECRET is unset)\", \"endpoint\": \"All authenticated endpoints (/contacts, /contacts/:id), token issued by POST /auth/login\", \"severity\": \"high\"},\n  {\"type\": \"Default/seeded credentials with known passwords (alice@example.com, bob@example.com)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"No rate limiting or lockout on login (brute force; synchronous scrypt also enables CPU/event-loop DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"low\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-17",
+      "findings": [
+        {
+          "type": "Missing rate limiting / brute force and CPU-exhaustion DoS (synchronous scrypt blocks the event loop)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Hardcoded default credentials seeded into the user database",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7097,
+      "rawResponse": "```json\n[\n  {\"type\": \"Missing rate limiting / brute force and CPU-exhaustion DoS (synchronous scrypt blocks the event loop)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"Hardcoded default credentials seeded into the user database\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]\n```"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-18",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (seed users with known passwords, auto-created on first run and also stored in plaintext in sudarshan.json)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Missing rate limiting / brute-force protection on login (scrypt per attempt also enables CPU-exhaustion DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 5871,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (seed users with known passwords, auto-created on first run and also stored in plaintext in sudarshan.json)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"Missing rate limiting / brute-force protection on login (scrypt per attempt also enables CPU-exhaustion DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-19",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 8445,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-20",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (seed users with known passwords auto-created on first start when no data file exists)",
+          "endpoint": "POST /auth/login",
+          "severity": "low",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 7699,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (seed users with known passwords auto-created on first start when no data file exists)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"low\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-21",
+      "findings": [],
+      "falsePositives": null,
+      "totalDurationMs": 5755,
+      "rawResponse": "[]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-22",
+      "findings": [
+        {
+          "type": "Hardcoded/default JWT signing secret (token forgery when JWT_SECRET is unset)",
+          "endpoint": "All authenticated endpoints (/bills, /bills/:id) and POST /auth/login",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "Hardcoded default user credentials auto-seeded on first run",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login (brute force, plus CPU-heavy scrypt DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "low",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6965,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default JWT signing secret (token forgery when JWT_SECRET is unset)\", \"endpoint\": \"All authenticated endpoints (/bills, /bills/:id) and POST /auth/login\", \"severity\": \"high\"},\n  {\"type\": \"Hardcoded default user credentials auto-seeded on first run\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"No rate limiting or lockout on login (brute force, plus CPU-heavy scrypt DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"low\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-24",
+      "findings": [
+        {
+          "type": "Hardcoded default JWT signing secret (forgeable authentication tokens when JWT_SECRET is unset)",
+          "endpoint": "POST /auth/login and all /appointments* endpoints",
+          "severity": "high",
+          "verification": "unverified"
+        },
+        {
+          "type": "No rate limiting or lockout on login, plus synchronous scrypt that blocks the event loop (brute force and DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Hardcoded seed user credentials in source, which are active if the default seed is used",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6720,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded default JWT signing secret (forgeable authentication tokens when JWT_SECRET is unset)\", \"endpoint\": \"POST /auth/login and all /appointments* endpoints\", \"severity\": \"high\"},\n  {\"type\": \"No rate limiting or lockout on login, plus synchronous scrypt that blocks the event loop (brute force and DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"Hardcoded seed user credentials in source, which are active if the default seed is used\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    },
+    {
+      "toolName": "llm-review",
+      "target": "eval/apps/app-25",
+      "findings": [
+        {
+          "type": "Hardcoded/default credentials (seeded accounts with publicly known passwords)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        },
+        {
+          "type": "Missing rate limiting / brute-force protection (also synchronous scrypt blocks the event loop, enabling unauthenticated DoS)",
+          "endpoint": "POST /auth/login",
+          "severity": "medium",
+          "verification": "unverified"
+        }
+      ],
+      "falsePositives": null,
+      "totalDurationMs": 6886,
+      "rawResponse": "[\n  {\"type\": \"Hardcoded/default credentials (seeded accounts with publicly known passwords)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"},\n  {\"type\": \"Missing rate limiting / brute-force protection (also synchronous scrypt blocks the event loop, enabling unauthenticated DoS)\", \"endpoint\": \"POST /auth/login\", \"severity\": \"medium\"}\n]"
+    }
+  ]
+}
