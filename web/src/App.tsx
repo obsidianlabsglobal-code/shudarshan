@@ -1,4 +1,5 @@
 import Hero from "./components/Hero";
+import DotGrid from "./components/DotGrid";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
 
       <main>
         <Hero />
+        <DotGrid />
       </main>
 
       <footer className="border-t border-hair">
