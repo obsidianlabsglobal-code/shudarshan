@@ -3,6 +3,7 @@
 //   sudarshan scan-all <appsDir>  scan every app subfolder, write a combined file
 
 import { scan, scanAll } from "./scan";
+import { scanSecretAll } from "./secret";
 
 async function main() {
   const [cmd, arg] = process.argv.slice(2);
@@ -14,7 +15,11 @@ async function main() {
     await scanAll(arg);
     return;
   }
-  console.error("usage: sudarshan scan <dir> | sudarshan scan-all <appsDir>");
+  if (cmd === "secret-all" && arg) {
+    await scanSecretAll(arg);
+    return;
+  }
+  console.error("usage: sudarshan scan <dir> | sudarshan scan-all <appsDir> | sudarshan secret-all <appsDir>");
   process.exit(2);
 }
 

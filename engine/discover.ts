@@ -15,7 +15,7 @@ import { FORGED_TOKEN, extractLeakedFields } from "./attack";
 import { maskMarker, type Finding } from "../shared/finding";
 import type { ScanResult } from "../shared/result";
 
-const LOGIN_PATHS = ["/auth/login", "/login", "/api/login", "/api/auth/login", "/sessions", "/users/login"];
+export const LOGIN_PATHS = ["/auth/login", "/login", "/api/login", "/api/auth/login", "/sessions", "/users/login"];
 const TOKEN_FIELDS = ["token", "accessToken", "access_token", "jwt"];
 // Resource names seen in these scenarios, plus common synonyms. An app whose
 // collection path is not here is reported unscannable, never guessed wrong.
@@ -27,8 +27,8 @@ const RESOURCE_DICT = [
   "journals", "pets", "exercises", "budgets", "goalslist",
 ];
 
-interface AppUser { name: string; email: string; password: string; }
-interface DUser { label: string; userId: string; token: string; records: any[] }
+export interface AppUser { name: string; email: string; password: string; }
+export interface DUser { label: string; userId: string; token: string; records: any[] }
 interface Discovery {
   baseUrl: string;
   loginPath: string;
@@ -36,7 +36,7 @@ interface Discovery {
   sessions: DUser[];
 }
 
-function portForDir(dir: string): number {
+export function portForDir(dir: string): number {
   const m = basename(dir).match(/(\d+)/);
   const n = m ? Number(m[1]) : NaN;
   if (!Number.isFinite(n)) throw new Error(`cannot derive port from dir name '${basename(dir)}'`);
@@ -101,7 +101,7 @@ function collisionSafeMarker(victimRecord: any, attackerRecords: any[], requeste
   return best;
 }
 
-async function tryLogin(base: string, path: string, u: AppUser): Promise<DUser | null> {
+export async function tryLogin(base: string, path: string, u: AppUser): Promise<DUser | null> {
   let res: Response;
   try {
     res = await fetch(base + path, {
@@ -126,7 +126,7 @@ async function tryLogin(base: string, path: string, u: AppUser): Promise<DUser |
   return { label: "", userId, token, records: [] };
 }
 
-async function discoverList(base: string, token: string): Promise<{ listPath: string; records: any[] } | null> {
+export async function discoverList(base: string, token: string): Promise<{ listPath: string; records: any[] } | null> {
   for (const name of RESOURCE_DICT) {
     const listPath = "/" + name;
     const r = await send("GET", base + listPath, token);
@@ -143,7 +143,7 @@ async function discoverList(base: string, token: string): Promise<{ listPath: st
   return null;
 }
 
-async function listRecords(base: string, listPath: string, token: string): Promise<any[]> {
+export async function listRecords(base: string, listPath: string, token: string): Promise<any[]> {
   const r = await send("GET", base + listPath, token);
   if (r.status !== 200) return [];
   try {
@@ -199,7 +199,7 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 // start; others only seed via `--seed`. We run it with cwd = the app folder so
 // data files land there and never collide at the repo root. Best-effort: if the
 // command starts a server instead of exiting, we move on (the app auto-seeds).
-async function seedApp(dir: string, port: number): Promise<void> {
+export async function seedApp(dir: string, port: number): Promise<void> {
   const tsx = process.cwd() + "/node_modules/.bin/tsx";
   const p = spawn(tsx, ["server.ts", "--seed"], {
     stdio: "ignore",
