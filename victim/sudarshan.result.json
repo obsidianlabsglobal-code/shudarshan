@@ -1,0 +1,243 @@
+{
+  "toolName": "sudarshan",
+  "target": "http://127.0.0.1:4700",
+  "findings": [
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "A",
+      "attacker": "B",
+      "resource": "/api/appointments/a-1001",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX76",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-1001",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200,
+        "testFile": "/tmp/claude-0/-home-user-shudarshan/64a6aa80-08ff-5a53-aafb-e242c6c5a334/scratchpad/apps/victim/sudarshan-tests/bola-a-1001.test.ts"
+      }
+    },
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "A",
+      "attacker": "B",
+      "resource": "/api/appointments/a-1002",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX76",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-1002",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200
+      }
+    },
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "A",
+      "attacker": "B",
+      "resource": "/api/appointments/a-1003",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX76",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-1003",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200
+      }
+    },
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "B",
+      "attacker": "A",
+      "resource": "/api/appointments/a-2001",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX67",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-2001",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200
+      }
+    },
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "B",
+      "attacker": "A",
+      "resource": "/api/appointments/a-2002",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX67",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-2002",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200
+      }
+    },
+    {
+      "attackClass": "BOLA",
+      "target": "http://127.0.0.1:4700",
+      "victim": "B",
+      "attacker": "A",
+      "resource": "/api/appointments/a-2003",
+      "leakedFields": [
+        "id",
+        "owner_id",
+        "patient_name",
+        "phone",
+        "date",
+        "doctor",
+        "reason_for_visit"
+      ],
+      "markerMasked": "98XXXXXX67",
+      "reproduced": true,
+      "evidence": {
+        "attackRequest": {
+          "method": "GET",
+          "url": "http://127.0.0.1:4700/api/appointments/a-2003",
+          "headers": {
+            "accept": "application/json",
+            "authorization": "Bearer <redacted>"
+          }
+        },
+        "provingStatus": 200,
+        "controlOwnStatus": 200,
+        "controlNoAuthStatus": 401,
+        "controlForgedStatus": 401
+      },
+      "remediation": {
+        "template": "ownership-check",
+        "reattackResult": "blocked",
+        "fixOutcome": "VALID",
+        "reattackStatus": 403,
+        "ownControlStatus": 200
+      }
+    }
+  ],
+  "falsePositives": 0,
+  "totalDurationMs": 989
+}
