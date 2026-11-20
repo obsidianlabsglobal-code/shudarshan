@@ -1,0 +1,19 @@
+{
+  "name": "music-practice-log",
+  "version": "1.0.0",
+  "description": "A small Express + TypeScript API for logging music practice sessions",
+  "private": true,
+  "main": "server.ts",
+  "scripts": {
+    "start": "tsx server.ts",
+    "seed": "tsx server.ts --seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.0"
+  }
+}

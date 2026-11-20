@@ -1,0 +1,20 @@
+{
+  "name": "weekly-meal-planner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Weekly meal planner REST API with JWT login",
+  "main": "server.ts",
+  "scripts": {
+    "start": "tsx server.ts",
+    "seed": "tsx server.ts --seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "password": "Alice!Fl4sh-Card9"
+    },
+    {
+      "name": "Bob",
+      "email": "bob@example.org",
+      "password": "Bob!Fl4sh-Card7"
+    }
+  ]
+}

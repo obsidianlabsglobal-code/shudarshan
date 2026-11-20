@@ -1,0 +1,19 @@
+{
+  "name": "job-application-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Small Express + TypeScript job application tracker with JWT auth",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "tsx server.ts",
+    "seed": "tsx server.ts --seed"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.0"
+  }
+}

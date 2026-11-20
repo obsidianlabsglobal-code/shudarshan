@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "password": "Alice-Scales-2024!"
+    },
+    {
+      "name": "Bob",
+      "email": "bob@example.com",
+      "password": "Bob-Arpeggios-2024!"
+    }
+  ]
+}

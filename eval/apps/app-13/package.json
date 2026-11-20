@@ -1,0 +1,20 @@
+{
+  "name": "personal-event-planner",
+  "version": "1.0.0",
+  "description": "Small Express + TypeScript personal event planner with JWT auth",
+  "private": true,
+  "type": "module",
+  "main": "server.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "tsx server.ts",
+    "seed": "tsx server.ts --seed"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.0"
+  }
+}
