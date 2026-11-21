@@ -92,6 +92,16 @@ export interface StatBlock {
   reason?: string;
 }
 
+export interface BenchRate { n: number; of: number; rate: number; ci95: { lower: number; upper: number } }
+export interface RewriteBenchmark {
+  generatedAt: string;
+  totals: { apps: number; vulnerable: number; secureControls: number };
+  headline: { caught: BenchRate; inconclusive: BenchRate; falseSecure: BenchRate & { pass: boolean } };
+  secureControls: { n: number; noLeakDetected: number; falseAlarm: number };
+  selfRelocatingByType: Record<string, { n: number; caught: number }>;
+  frozenSavedTest: { caughtOnVulnerable: number; ofVulnerable: number };
+}
+
 export interface Stats {
   method: string;
   appsLeaked: StatBlock;
@@ -106,6 +116,7 @@ const r = results as unknown as {
   llmReview: LlmReview | null;
   regression: Regression | null;
   stats: Stats | null;
+  rewriteBenchmark: RewriteBenchmark | null;
 };
 
 export const authorization = r.authorization;
@@ -114,6 +125,7 @@ export const gitleaks = r.gitleaks;
 export const llmReview = r.llmReview;
 export const regression = r.regression;
 export const stats = r.stats;
+export const rewriteBenchmark = r.rewriteBenchmark;
 
 /** Render a value, or an em dash if it is absent. */
 export function dash(v: number | string | null | undefined): string {

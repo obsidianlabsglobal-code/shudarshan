@@ -16,6 +16,7 @@ const FILES = {
   llmReview: "llmreview-classified.json",
   regression: "regression.json",
   stats: "stats.json",
+  rewriteBenchmark: "rewrite-benchmark.json",
 };
 
 const out = {};

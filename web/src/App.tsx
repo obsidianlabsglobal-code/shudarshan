@@ -1,5 +1,6 @@
 import Background from "./components/Background";
 import Hero from "./components/Hero";
+import SinceRound1 from "./components/SinceRound1";
 import VerifyPanel from "./components/VerifyPanel";
 import DotGrid from "./components/DotGrid";
 import { Chakra } from "./components/Chakra";
@@ -25,6 +26,7 @@ export default function App() {
 
         <main>
           <Hero />
+          <SinceRound1 />
           <VerifyPanel />
           <DotGrid />
           <ToolComparison />
