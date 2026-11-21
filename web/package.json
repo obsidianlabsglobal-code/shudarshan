@@ -7,7 +7,9 @@
     "collect": "node scripts/collect-data.mjs",
     "dev": "npm run collect && vite",
     "build": "npm run collect && tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:console": "npm run collect && tsc --noEmit && vite build --config vite.console.config.ts",
+    "dev:console": "vite --config vite.console.config.ts"
   },
   "dependencies": {
     "react": "18.3.1",

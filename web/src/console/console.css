@@ -1,0 +1,42 @@
+/* Sudarshan Console — motion + a few component styles on top of the dashboard tokens. */
+
+/* Live stage bar: an indeterminate saffron sweep while a stage runs. */
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.stage-bar { position: relative; height: 3px; overflow: hidden; border-radius: 999px; background: #2c2518; }
+.stage-bar > i { position: absolute; inset: 0; border-radius: inherit; transition: background-color .35s ease, transform .45s ease; }
+.stage-bar.running > i { width: 40%; background: linear-gradient(90deg, transparent, #e0932f, transparent); animation: sweep 1.15s ease-in-out infinite; }
+.stage-bar.done > i { background: #30d158; }
+.stage-bar.skipped > i { background: transparent; }
+
+/* Running indicator: soft saffron ping. */
+@keyframes ping { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(2.4); opacity: 0; } }
+.ping { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: #e0932f; }
+.ping::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #e0932f; animation: ping 1.2s cubic-bezier(0, 0, .2, 1) infinite; }
+
+/* Slow spin for the chakra while a run is in flight. */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-slow { animation: spin 3.2s linear infinite; }
+
+/* Staggered reveal for result cards. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .55s cubic-bezier(.2, .7, .2, 1) both; }
+
+/* Primary button. */
+.btn-primary {
+  background: linear-gradient(180deg, #e0932f, #b45309);
+  color: #14110b;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 8px 24px -10px rgba(224,147,47,.55);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.06); box-shadow: inset 0 1px 0 rgba(255,255,255,.32), 0 12px 30px -10px rgba(224,147,47,.7); }
+.btn-primary:active:not(:disabled) { transform: translateY(1px); }
+.btn-primary:disabled { cursor: progress; filter: saturate(.7) brightness(.85); }
+
+.focus-ring:focus-visible { outline: 2px solid #e0932f; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-bar.running > i, .ping::after, .spin-slow, .rise { animation: none; }
+}
