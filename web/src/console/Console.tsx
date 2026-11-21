@@ -28,11 +28,11 @@ interface RunRecord {
   result: any;
 }
 
-const STAGES: { name: StageName; title: string; desc: string }[] = [
-  { name: "PROVE", title: "Attack the running app", desc: "Saved test vs. self-relocating exploit — re-find the route, attack ×2" },
-  { name: "FIX", title: "Restore & re-attack", desc: "Apply the ownership fix; accept only if the owner still gets 200" },
-  { name: "CHECK", title: "Proof trident", desc: "Collision-safe marker · forged-token control · reproduced" },
-  { name: "REMEMBER", title: "Persist the proof", desc: "Write the proof to the repo — it survives a restart" },
+const STAGES: { name: StageName; title: string; how: string; why: string }[] = [
+  { name: "PROVE", title: "Prove the leak", how: "Logs in as users A and B, finds where the data lives now, asks for A's record as B.", why: "The saved test checks the old address, gets \u201cnot found\u201d, and wrongly says safe." },
+  { name: "FIX", title: "Verify the fix", how: "Runs the patched app and repeats the attack.", why: "B must be blocked and A must still get their record." },
+  { name: "CHECK", title: "Three checks", how: "Data belongs only to A \u00b7 fake-key login rejected \u00b7 result repeats.", why: "So it\u2019s proof, not a guess." },
+  { name: "REMEMBER", title: "Remember it", how: "Saves the proof in the repo.", why: "The AI forgets what it fixed; next run re-finds and re-checks." },
 ];
 
 // Fallback only (the server's /api/targets is the source of truth).
@@ -206,11 +206,16 @@ function StageTile({ i, meta, view, now, outcome }: { i: number; meta: (typeof S
         <span className="mono text-[11px] text-mutefg">{String(i + 1).padStart(2, "0")}</span>
         <span className={`mono text-sm font-semibold tracking-wide ${s === "pending" ? "text-mutefg" : s === "skipped" ? "text-mutefg line-through decoration-hair" : "text-fg"}`}>{meta.name}</span>
       </div>
-      <div className={`mt-1 text-[13px] font-medium ${s === "pending" || s === "skipped" ? "text-mutefg" : "text-dimfg"}`}>{meta.title}</div>
-      <p className="mt-1 min-h-[34px] text-[11.5px] leading-snug text-mutefg/90">{meta.desc}</p>
-      <div className="mt-3 text-[12px] font-medium">{status}</div>
-      {meta.name === "PROVE" && outcome && s === "done" && (
-        <div className="mono mt-2 text-[11px] text-mutefg">self-relocating → <span style={{ color: outcome === "CAUGHT" ? "#FF453A" : outcome === "INCONCLUSIVE" ? "#FFD60A" : "#30D158" }}>{outcome}</span></div>
+      <div className={`mt-1 text-[13px] font-medium ${s === "pending" || s === "skipped" ? "text-mutefg" : "text-fg"}`}>{meta.title}</div>
+      <div className="mt-2 text-[12px] font-medium">{status}</div>
+      {s === "done" && (
+        <div className="mt-3 space-y-1.5 border-t border-hair/60 pt-3 text-[11.5px] leading-snug">
+          <p className="text-dimfg"><span className="font-medium text-mutefg">How </span>{meta.how}</p>
+          <p className="text-dimfg"><span className="font-medium text-mutefg">Why </span>{meta.why}</p>
+          {meta.name === "PROVE" && outcome && (
+            <p className="mono pt-1 text-[10.5px] text-mutefg/80">self-relocating → <span style={{ color: outcome === "CAUGHT" ? "#FF453A" : outcome === "INCONCLUSIVE" ? "#FFD60A" : "#30D158" }}>{outcome}</span></p>
+          )}
+        </div>
       )}
     </div>
   );
@@ -257,6 +262,12 @@ function VerdictHero({ rec, onRerun, running }: { rec: RunRecord; onRerun: () =>
   const r = rec.result;
   const f = r.finding;
   const m = VERDICT[rec.verdict];
+  const plain =
+    rec.verdict === "VULNERABLE"
+      ? "User B could read User A's private record. Your saved test said PASS — it was checking a route that no longer exists. The fix was verified: B blocked, A still works. Exit 1 — this would block the deploy."
+      : rec.verdict === "INCONCLUSIVE"
+        ? "Couldn't locate this endpoint — the AI renamed it to something we don't recognise. So: \u2018don't know\u2019, not \u2018safe\u2019. Exit 2."
+        : "Found the endpoint and tried to read another user's record. Refused — no leak reproduced. Exit 0. (Covers cross-user data access, not every bug.)";
   const detail =
     rec.verdict === "VULNERABLE"
       ? `Attacker (${f?.attacker}) read Victim (${f?.victim})'s private record at ${f?.resource} — reproduced ×2 against the running app.`
@@ -264,16 +275,19 @@ function VerdictHero({ rec, onRerun, running }: { rec: RunRecord; onRerun: () =>
         ? `Discovery could not find the endpoint (${r.discoveryError}). An unknown route is reported as inconclusive — never as safe.`
         : `Discovery reached ${rec.discovery?.route ?? "the route"}; no cross-user read reproduced a leak. Tested: per-object ownership — not a full security audit.`;
   return (
-    <div className="surface rise relative overflow-hidden p-7" style={{ boxShadow: `inset 3px 0 0 0 ${m.color}` }}>
+    <div id="outcome-box" className="surface rise relative overflow-hidden p-7" style={{ boxShadow: `inset 3px 0 0 0 ${m.color}` }}>
       <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full blur-3xl" style={{ background: m.soft }} />
       <div className="relative flex flex-wrap items-start justify-between gap-6">
         <div className="min-w-0 max-w-2xl">
-          <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-mutefg">Verdict · {rec.target}</div>
-          <div className="mono mt-3 text-[clamp(1.9rem,4vw,2.8rem)] font-semibold leading-none tracking-tight" style={{ color: m.color }}>
+          <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-mutefg">Outcome · {rec.target}</div>
+          <div className="mono mt-3 text-[clamp(1.7rem,3.6vw,2.5rem)] font-semibold leading-none tracking-tight" style={{ color: m.color }}>
             {rec.verdict}
           </div>
-          <div className="mt-3 text-[17px] font-medium text-fg">{m.headline}</div>
-          <p className="mt-1.5 text-sm leading-relaxed text-dimfg">{detail}</p>
+          <p className="mt-4 text-[15px] leading-relaxed text-fg">{plain}</p>
+          <details className="mt-3 text-[13px] text-mutefg">
+            <summary className="cursor-pointer select-none font-medium text-saffron2/90 hover:text-saffron2">Technical detail</summary>
+            <p className="mt-2 leading-relaxed text-dimfg">{m.headline} — {detail}</p>
+          </details>
         </div>
         <div className="flex flex-col items-end gap-3">
           <div className="rounded-xl border px-4 py-3 text-right" style={{ borderColor: m.color + "55", background: m.soft }}>
@@ -391,19 +405,19 @@ function Proofs({ rec }: { rec: RunRecord }) {
   const applies = rec.verdict === "VULNERABLE";
   const rows: [boolean, string, string][] = applies
     ? [
-        [!!r.trident?.marker, "Collision-safe marker", "The leaked value is the victim’s own — absent from the attacker’s data."],
-        [!!r.trident?.forgedDiscriminator, "Forged-token discriminator", `A wrong-secret token is rejected (${f?.controls?.forged}) → an authorization flaw, not broken login.`],
-        [!!r.trident?.selfRelocating, "Self-relocating", `Re-found ${f?.resource}; reproduced ×2.`],
+        [!!r.trident?.marker, "The data really is the victim\u2019s", "The leaked value is User A\u2019s own — absent from User B\u2019s data."],
+        [!!r.trident?.forgedDiscriminator, "A fake login is rejected", `A wrong-key token is refused (${f?.controls?.forged}) — so it\u2019s an access-control flaw, not a broken login.`],
+        [!!r.trident?.selfRelocating, "Found the moved route", `Re-found ${f?.resource}; the result repeats.`],
       ]
     : [
-        [false, "Collision-safe marker", "The leaked value must be the victim’s own, absent from the attacker’s data."],
-        [false, "Forged-token discriminator", "A wrong-secret token must be rejected, ruling out broken login."],
-        [false, "Self-relocating", "The leak must be re-found on the moved route and reproduced ×2."],
+        [false, "The data really is the victim\u2019s", "The leaked value must be User A\u2019s own, absent from User B\u2019s data."],
+        [false, "A fake login is rejected", "A wrong-key token must be refused, ruling out a broken login."],
+        [false, "Found the moved route", "The leak must be re-found on the moved route and repeat."],
       ];
   return (
     <div className="surface rise p-6" style={{ animationDelay: "120ms" }}>
       <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-fg">Three proofs</div>
+        <div className="text-sm font-medium text-fg">Three checks</div>
         {!applies && <span className="text-[11px] text-mutefg">apply to a proven leak</span>}
       </div>
       <ul className="mt-4 space-y-3.5">
@@ -485,8 +499,8 @@ function ReplayBanner({ recordedAt }: { recordedAt: string }) {
   return (
     <div className="surface flex flex-col gap-3 border-saffron2/30 p-4 sm:flex-row sm:items-center sm:justify-between" style={{ boxShadow: "inset 3px 0 0 0 #E0932F" }}>
       <p className="text-[12.5px] leading-relaxed text-dimfg">
-        <span className="font-medium text-fg">Replay</span> of a real run recorded {recordedAt} — real CLI output, real
-        timings. Run it live on your machine: <span className="mono text-saffron2">npm run serve</span>
+        <span className="font-medium text-fg">Recorded replay</span> of a real run ({recordedAt}) — real CLI output, real
+        timings. Run it live: <span className="mono text-saffron2">npm run serve</span>
       </p>
       <CopyButton text="npm run serve" label="Copy" />
     </div>
@@ -513,7 +527,7 @@ function TargetRail({ targets, selected, onSelect, verdictOf, disabled }: { targ
           >
             <div className="flex items-center justify-between gap-2">
               <span className={`mono text-xs ${on ? "text-saffron2" : "text-mutefg"}`}>{t.id}</span>
-              {v ? <VerdictChip v={v} /> : <span className="h-2 w-2 rounded-full border border-hair" />}
+              {v ? <VerdictChip v={v} /> : <span className="rounded-full border border-hair px-2 py-0.5 text-[10px] text-mutefg/70">not run yet</span>}
             </div>
             <div className="mt-2 text-[14px] font-medium leading-tight text-fg">{t.title}</div>
             <p className="mt-1 text-[11.5px] leading-snug text-mutefg">{t.summary}</p>
@@ -580,13 +594,13 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
   const timers = useRef<number[]>([]);
   const startRef = useRef<number>(Date.now());
   const logId = useRef(0);
+  const pacing = useRef(DWELL_MS); // 0 in replay (use recorded times exactly), DWELL_MS live
 
   const target = targets.find((t) => t.id === selected) ?? targets[0];
   const running = phase === "running";
-  const verdictOf = (id: string): Verdict | null => {
-    if (record?.target === id) return record.verdict;
-    return (RECORDINGS[id]?.verdict as Verdict) ?? null;
-  };
+  // No spoilers: a target shows a verdict only after it has been run THIS session.
+  const verdictOf = (id: string): Verdict | null =>
+    recent.find((r) => r.target === id)?.verdict ?? (record?.target === id ? record.verdict : null);
 
   useEffect(() => {
     // The static dashboard has no server — go straight to replay, no probe (and no
@@ -622,14 +636,15 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
       if (dwell) await sleep(dwell);
     });
   };
-  const pushLog = (text: string, color = "#C6BEAF") =>
-    setLog((prev) => [...prev, { id: logId.current++, t: Date.now() - startRef.current, text, color }]);
+  const pushLog = (text: string, color = "#C6BEAF", atMs?: number) =>
+    setLog((prev) => [...prev, { id: logId.current++, t: atMs ?? Date.now() - startRef.current, text, color }]);
 
-  const applyStage = (ev: { name: StageName; time: string; outcome?: string | null }) => {
+  const applyStage = (ev: { name: StageName; time: string; outcome?: string | null }, atMs?: number) => {
     if (ev.name === "PROVE" && ev.outcome) setOutcome(ev.outcome);
     pushLog(
       `${ev.name} ✓ ${ev.time}` + (ev.name === "PROVE" && ev.outcome ? `  self-relocating: ${ev.outcome}` : ""),
       ev.name === "PROVE" && ev.outcome === "CAUGHT" ? "#FF453A" : "#C6BEAF",
+      atMs,
     );
     setStages((prev) => {
       const next = { ...prev };
@@ -653,18 +668,19 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
   };
 
   // Shared event handlers — live SSE and replay both feed these.
-  const onDiscovery = (d: RunRecord["discovery"]) =>
+  const onDiscovery = (d: RunRecord["discovery"], atMs?: number) =>
     later(() => {
       setDiscovery(d);
-      if (d) pushLog(`route re-discovered ${d.route} · login ${d.login} · port ${d.port}`, "#30D158");
+      if (d) pushLog(`route re-discovered ${d.route} · login ${d.login} · port ${d.port}`, "#30D158", atMs);
     });
-  const onStage = (d: any) => later(() => applyStage(d), DWELL_MS);
-  const onResult = (rec: RunRecord) =>
+  const onStage = (d: any, atMs?: number) => later(() => applyStage(d, atMs), pacing.current);
+  const onResult = (rec: RunRecord, atMs?: number) =>
     later(() => {
       setRecord(rec);
       setPhase("done");
       setRecent((prev) => [rec, ...prev.filter((p) => p.id !== rec.id)].slice(0, 10));
-      pushLog(`VERDICT: ${rec.verdict} (exit ${rec.exitCode})`, VERDICT[rec.verdict].color);
+      pushLog(`VERDICT: ${rec.verdict} (exit ${rec.exitCode})`, VERDICT[rec.verdict].color, atMs);
+      scrollToId("outcome-box");
     });
   const onFailure = (d: any) => later(() => { setError({ message: d.message, fallback: d.fallback }); setPhase("error"); });
 
@@ -692,9 +708,9 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
     let finished = false;
     const es = new EventSource(`/api/run?target=${encodeURIComponent(id)}`);
     esRef.current = es;
-    es.addEventListener("discovery", (e) => onDiscovery(JSON.parse((e as MessageEvent).data)));
-    es.addEventListener("stage", (e) => onStage(JSON.parse((e as MessageEvent).data)));
-    es.addEventListener("result", (e) => { finished = true; es.close(); onResult(JSON.parse((e as MessageEvent).data)); });
+    es.addEventListener("discovery", (e) => onDiscovery(JSON.parse((e as MessageEvent).data), Date.now() - startRef.current));
+    es.addEventListener("stage", (e) => onStage(JSON.parse((e as MessageEvent).data), Date.now() - startRef.current));
+    es.addEventListener("result", (e) => { finished = true; es.close(); onResult(JSON.parse((e as MessageEvent).data), Date.now() - startRef.current); });
     es.addEventListener("failure", (e) => { finished = true; es.close(); onFailure(JSON.parse((e as MessageEvent).data)); });
     es.onerror = () => {
       if (finished) return;
@@ -713,17 +729,20 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
     resetForRun(id, rec.cmd);
     for (const ev of rec.events as { t: number; type: string; data: any }[]) {
       const timer = window.setTimeout(() => {
-        if (ev.type === "discovery") onDiscovery(ev.data);
-        else if (ev.type === "stage") onStage(ev.data);
-        else if (ev.type === "result") onResult(ev.data as RunRecord);
+        if (ev.type === "discovery") onDiscovery(ev.data, ev.t);
+        else if (ev.type === "stage") onStage(ev.data, ev.t);
+        else if (ev.type === "result") onResult(ev.data as RunRecord, ev.t);
         else if (ev.type === "failure") onFailure(ev.data);
       }, ev.t);
       timers.current.push(timer);
     }
   };
 
+  const scrollToId = (id: string) => { if (typeof window !== "undefined" && window.innerWidth < 1024) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
   const run = (id = selected) => {
     if (running || mode === "checking") return;
+    pacing.current = mode === "replay" ? 0 : DWELL_MS;
+    scrollToId("pipeline");
     if (mode === "replay") replayRun(id);
     else liveRun(id);
   };
@@ -758,7 +777,7 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
       {mode === "replay" && <div className="mb-6"><ReplayBanner recordedAt={recordedAt} /></div>}
 
       <div className="flex flex-col gap-1.5">
-        <Eyebrow>{mode === "replay" ? "Replay · recorded run" : "Live verification · localhost"}</Eyebrow>
+        {mode !== "replay" && <Eyebrow>Live verification · localhost</Eyebrow>}
         <h1 className="max-w-3xl text-balance text-[clamp(1.6rem,3.4vw,2.5rem)] font-semibold leading-[1.06] tracking-tight">
           Attack the running app. <span className="text-mutefg">Prove the leak — or say so honestly.</span>
         </h1>
@@ -784,7 +803,7 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
             )}
           </button>
           <div className="flex items-center gap-2 rounded-xl border border-hair bg-panel/80 py-1.5 pl-3 pr-1.5">
-            <span className="mono min-w-0 flex-1 truncate text-[11.5px] text-dimfg"><span className="text-mutefg">$</span> {target.cmd}</span>
+            <span className="mono min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-[11.5px] text-dimfg"><span className="text-mutefg">$</span> {target.cmd}</span>
             <CopyButton text={target.cmd} label="Copy" />
           </div>
           <RecentRuns runs={recent} activeId={record?.id ?? null} onOpen={openRecord} />
@@ -792,8 +811,8 @@ export default function Console({ embedded = false, forceReplay = false }: { emb
 
         {/* RIGHT — pipeline+log (centre) and results (right) */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,390px)]">
-          <div>
-            <Pipeline stages={stages} now={now} discovery={discovery} outcome={outcome} phase={phase} runStart={runStart} total={record?.durationMs ?? null} compact />
+          <div id="pipeline">
+            <Pipeline stages={stages} now={now} discovery={discovery} outcome={outcome} phase={phase} runStart={runStart} total={phase === "done" && log.length ? log[log.length - 1].t : record?.durationMs ?? null} compact />
             <LiveLog lines={log} running={running} />
           </div>
 

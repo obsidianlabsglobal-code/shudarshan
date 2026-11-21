@@ -87,7 +87,7 @@ export default function Rigor() {
         {b && falseCleared ? (
           <>
             <h2 className="mt-4 text-[clamp(1.9rem,3.6vw,3rem)] font-semibold leading-[1.05] tracking-tight">
-              <span className="text-green">{falseCleared.n} / {falseCleared.of}</span> vulnerable apps falsely cleared.
+              <span className="text-green">{falseCleared.n} / {falseCleared.of}</span> vulnerable apps falsely called safe.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-dimfg">
               Across {apps} AI route-rewrites of one app, Sudarshan <span className="text-fg">never once</span> reported a

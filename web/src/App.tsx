@@ -3,6 +3,7 @@ import Background from "./components/Background";
 import { Chakra } from "./components/Chakra";
 import Console from "./console/Console";
 import SinceRound1 from "./components/SinceRound1";
+import Study1 from "./components/Study1";
 import ToolComparison from "./components/ToolComparison";
 import Rigor from "./components/Rigor";
 
@@ -42,7 +43,7 @@ export default function App() {
   );
 
   return (
-    <div className="relative min-h-screen bg-ink text-fg antialiased">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink text-fg antialiased">
       <Background variant="grid" />
 
       <div className="relative z-10">
@@ -58,10 +59,15 @@ export default function App() {
               {navBtn("evidence", "Evidence")}
               <span className="mx-0.5 hidden h-4 w-px bg-hair sm:block" />
               {extLink(REPO, "GitHub")}
-              <span className="hidden sm:block">{extLink(METHODOLOGY, "Methodology")}</span>
             </nav>
           </div>
         </header>
+
+        <div className="border-b border-hair/60 bg-ink/40">
+          <div className="mx-auto max-w-[1280px] px-5 py-2.5 text-[12.5px] leading-snug text-dimfg sm:px-6">
+            Checks whether one user can see another user\u2019s private data — and keeps checking after AI rewrites your app.
+          </div>
+        </div>
 
         <main>
           {tab === "console" ? (
@@ -69,6 +75,7 @@ export default function App() {
           ) : (
             <div>
               <SinceRound1 />
+              <Study1 />
               <Rigor />
               <ToolComparison />
               <div className="mx-auto max-w-[1280px] px-6 pb-16">
@@ -84,6 +91,7 @@ export default function App() {
           <div className="mx-auto flex max-w-[1280px] flex-col gap-1 px-6 py-8 text-[13px] text-mutefg">
             <span>Every number is read from the scanner's own output files. Replays reproduce a real recorded CLI run — never fabricated.</span>
             <span className="text-mutefg/70">Team ANVORA · localhost · synthetic data</span>
+            <a href={METHODOLOGY} target="_blank" rel="noreferrer" className="focus-ring mt-1 inline-flex w-fit items-center gap-1 text-mutefg transition-colors hover:text-fg">Methodology <span aria-hidden>↗</span></a>
           </div>
         </footer>
       </div>
