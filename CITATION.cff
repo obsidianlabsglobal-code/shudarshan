@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use or build on this work, please cite it as below."
+title: "Sudarshan: proof-carrying API security that survives the rewrite"
+abstract: >-
+  AI coding assistants rewrite applications wholesale, which silently invalidates
+  route-pinned security regression tests and can drop authorization checks without
+  any visible change. Sudarshan re-discovers moved API endpoints and re-proves
+  broken object-level authorization against the current code using deterministic
+  runtime evidence, with a three-state verdict that never reports an unproven
+  application as safe. In a pre-registered benchmark of 25 synthetic route
+  transformations, it detected 8 of 21 seeded regressions, reported 13 as
+  inconclusive, and falsely cleared none (95% Wilson CI [0, 0.155]).
+type: software
+authors:
+  - given-names: Krishna
+    family-names: Seervi
+  - given-names: Pradeep
+    family-names: Beleri
+  - given-names: Abhinav
+    family-names: Hande
+repository-code: "https://github.com/obsidianlabsglobal-code/shudarshan"
+url: "https://obsidianlabsglobal-code.github.io/shudarshan/"
+license: MIT
+date-released: "2026-11-21"
+keywords:
+  - API security
+  - broken object-level authorization
+  - AI-generated code
+  - regression testing
+  - runtime verification

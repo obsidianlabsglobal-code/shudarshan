@@ -33,6 +33,7 @@ async function main() {
     } else {
       const r = await verifyApp(arg);
       process.exitCode = r.exitCode; // VULNERABLE=1 · INCONCLUSIVE=2 · NO_LEAK_DETECTED=0
+      process.exit(r.exitCode); // return to the shell right after the verdict (verify.ts stays the authority)
     }
     return;
   }

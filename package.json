@@ -1,32 +1,50 @@
 {
   "name": "shudarshan",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sudarshan — proof-carrying API security that survives the rewrite. Re-discovers moved endpoints and re-proves broken object-level authorization with deterministic runtime evidence; never reports an unproven app as safe.",
+  "keywords": [
+    "security",
+    "api-security",
+    "authorization",
+    "bola",
+    "idor",
+    "ai-generated-code",
+    "regression-testing",
+    "dast",
+    "research"
+  ],
+  "author": "Team ANVORA — Krishna Seervi, Pradeep Beleri, Abhinav Hande",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "directories": {
     "doc": "docs"
   },
   "scripts": {
+    "verify": "tsx engine/cli.ts verify",
+    "serve": "tsx engine/cli.ts serve",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "selftest": "tsx engine/selftest.ts",
+    "test": "npm run typecheck && npm run selftest",
+    "bench": "tsx eval/benchmark/run-benchmark.ts",
+    "sudarshan": "tsx engine/cli.ts",
     "victim:start": "tsx victim/server.ts",
     "victim:reset": "tsx victim/seed.ts",
     "attack": "tsx engine/bola.ts",
     "fix": "tsx engine/fix.ts",
     "reprove": "tsx engine/reprove.ts",
-    "to-test": "tsx engine/to-test.ts",
-    "sudarshan": "tsx engine/cli.ts"
+    "to-test": "tsx engine/to-test.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/obsidianlabsglobal-code/shudarshan.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/obsidianlabsglobal-code/shudarshan/issues"
   },
-  "homepage": "https://github.com/obsidianlabsglobal-code/shudarshan#readme",
-  "private": true,
+  "homepage": "https://obsidianlabsglobal-code.github.io/shudarshan/",
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",

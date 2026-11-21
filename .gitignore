@@ -25,3 +25,6 @@ eval/apps/**/data.json
 eval/apps/**/db.json
 eval/regression/**/data.json
 eval/regression/**/db.json
+
+# Scan output written by the verify/scan run (never committed)
+victim/sudarshan.result.json
