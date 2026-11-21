@@ -1,9 +1,15 @@
-// Sudarshan Console — a thin local UI over `sudarshan verify`.
-// It never decides anything: every run is the real CLI on the server, streamed
-// live; verdicts, timings and evidence are exactly what the CLI produced.
+// Sudarshan Console — a thin UI over `sudarshan verify`.
+// It never decides anything. With a local server it runs the real CLI and streams
+// it live. Without one (e.g. the static dashboard) it REPLAYS a real recorded run
+// at its real timings — same UI, same verdicts. Never labelled "live" in replay.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Chakra } from "../components/Chakra";
 import Background from "../components/Background";
+import rec51 from "../data/runs/app-51.json";
+import rec50 from "../data/runs/app-50.json";
+import rec52 from "../data/runs/app-52.json";
+
+const RECORDINGS: Record<string, any> = { "app-51": rec51, "app-50": rec50, "app-52": rec52 };
 
 type StageName = "PROVE" | "FIX" | "CHECK" | "REMEMBER";
 type StageState = "pending" | "running" | "done" | "skipped";
@@ -31,9 +37,9 @@ const STAGES: { name: StageName; title: string; desc: string }[] = [
 
 // Fallback only (the server's /api/targets is the source of truth).
 const FALLBACK_TARGETS: Target[] = [
-  { id: "app-51", dir: "victim/app-51", title: "AI-rewritten clinic API", summary: "An AI refactor moved /records to /api/v2/items and dropped the ownership check.", cmd: "npm run sudarshan -- verify victim/app-51" },
-  { id: "app-50", dir: "victim/app-50", title: "Safe baseline", summary: "The original clinic API. get-by-id enforces ownership.", cmd: "npm run sudarshan -- verify victim/app-50" },
-  { id: "app-52", dir: "victim/app-52", title: "Renamed to an unknown route", summary: "Resource renamed to /api/v2/manifests, a noun outside the discovery dictionary.", cmd: "npm run sudarshan -- verify victim/app-52" },
+  { id: "app-51", dir: "victim/app-51", title: "Clinic API — rewritten", summary: "An AI refactor moved /records to /api/v2/items and dropped the ownership check.", cmd: "npm run sudarshan -- verify victim/app-51" },
+  { id: "app-50", dir: "victim/app-50", title: "Clinic API — baseline", summary: "The original clinic API. get-by-id enforces ownership.", cmd: "npm run sudarshan -- verify victim/app-50" },
+  { id: "app-52", dir: "victim/app-52", title: "Clinic API — unfamiliar rename", summary: "Resource renamed to /api/v2/manifests, a noun outside the discovery dictionary.", cmd: "npm run sudarshan -- verify victim/app-52" },
 ];
 
 const VERDICT: Record<Verdict, { color: string; soft: string; headline: string; exitMeaning: string }> = {
@@ -210,8 +216,8 @@ function StageTile({ i, meta, view, now, outcome }: { i: number; meta: (typeof S
   );
 }
 
-function Pipeline({ stages, now, discovery, outcome, phase, runStart, total }: {
-  stages: Record<StageName, StageView>; now: number; discovery: RunRecord["discovery"]; outcome: string | null; phase: string; runStart: number | null; total: number | null;
+function Pipeline({ stages, now, discovery, outcome, phase, runStart, total, compact = false }: {
+  stages: Record<StageName, StageView>; now: number; discovery: RunRecord["discovery"]; outcome: string | null; phase: string; runStart: number | null; total: number | null; compact?: boolean;
 }) {
   const doneCount = STAGES.filter((s) => stages[s.name].state === "done" || stages[s.name].state === "skipped").length;
   return (
@@ -225,7 +231,7 @@ function Pipeline({ stages, now, discovery, outcome, phase, runStart, total }: {
           {phase === "running" && runStart ? <>elapsed <span className="tnum text-dimfg">{fmtDur(now - runStart)}</span></> : total != null ? <>total <span className="text-dimfg">{fmtDur(total)}</span></> : "idle"}
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={`mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 ${compact ? "" : "lg:grid-cols-4"}`}>
         {STAGES.map((m, i) => (
           <StageTile key={m.name} i={i} meta={m} view={stages[m.name]} now={now} outcome={m.name === "PROVE" ? outcome : undefined} />
         ))}
@@ -472,11 +478,93 @@ function RecentRuns({ runs, activeId, onOpen }: { runs: RunRecord[]; activeId: s
   );
 }
 
+/* ---------- product-console building blocks ---------- */
+interface LogLine { id: number; t: number; text: string; color: string }
+
+function ReplayBanner({ recordedAt }: { recordedAt: string }) {
+  return (
+    <div className="surface flex flex-col gap-3 border-saffron2/30 p-4 sm:flex-row sm:items-center sm:justify-between" style={{ boxShadow: "inset 3px 0 0 0 #E0932F" }}>
+      <p className="text-[12.5px] leading-relaxed text-dimfg">
+        <span className="font-medium text-fg">Replay</span> of a real run recorded {recordedAt} — real CLI output, real
+        timings. Run it live on your machine: <span className="mono text-saffron2">npm run serve</span>
+      </p>
+      <CopyButton text="npm run serve" label="Copy" />
+    </div>
+  );
+}
+
+function TargetRail({ targets, selected, onSelect, verdictOf, disabled }: { targets: Target[]; selected: string; onSelect: (id: string) => void; verdictOf: (id: string) => Verdict | null; disabled: boolean }) {
+  return (
+    <div role="radiogroup" aria-label="Demo app" className="space-y-2.5">
+      {targets.map((t) => {
+        const on = t.id === selected;
+        const v = verdictOf(t.id);
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            disabled={disabled}
+            onClick={() => onSelect(t.id)}
+            className={`focus-ring surface w-full p-4 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+              on ? "!border-saffron2/70 shadow-[0_0_0_1px_rgba(224,147,47,0.3)]" : "hover:!border-[#3a3122]"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className={`mono text-xs ${on ? "text-saffron2" : "text-mutefg"}`}>{t.id}</span>
+              {v ? <VerdictChip v={v} /> : <span className="h-2 w-2 rounded-full border border-hair" />}
+            </div>
+            <div className="mt-2 text-[14px] font-medium leading-tight text-fg">{t.title}</div>
+            <p className="mt-1 text-[11.5px] leading-snug text-mutefg">{t.summary}</p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function LiveLog({ lines, running }: { lines: LogLine[]; running: boolean }) {
+  return (
+    <div className="surface mt-5 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-hair px-5 py-2.5">
+        <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mutefg">
+          {running && <span className="ping" />} Live log
+        </span>
+        <span className="mono text-[10px] text-mutefg">{lines.length} events</span>
+      </div>
+      <div className="mono max-h-[200px] overflow-auto px-5 py-3 text-[11.5px] leading-relaxed">
+        {lines.length === 0 ? (
+          <div className="text-mutefg/60">Awaiting a run…</div>
+        ) : (
+          lines.map((l) => (
+            <div key={l.id} className="rise flex gap-3 py-0.5">
+              <span className="tnum shrink-0 text-mutefg/50">{fmtDur(l.t)}</span>
+              <span style={{ color: l.color }}>{l.text}</span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyResults({ running }: { running: boolean }) {
+  return (
+    <div className="surface flex min-h-[300px] flex-col items-center justify-center p-8 text-center">
+      <Chakra size={26} className={`text-saffron2/70 ${running ? "spin-slow" : ""}`} />
+      <p className="mt-4 max-w-[220px] text-[13px] leading-relaxed text-mutefg">
+        {running ? "Attacking the running app…" : "Press Run to see the verdict, the leaked record, and the three proofs."}
+      </p>
+    </div>
+  );
+}
+
 /* ---------- page ---------- */
-export default function Console() {
+export default function Console({ embedded = false, forceReplay = false }: { embedded?: boolean; forceReplay?: boolean }) {
   const [targets, setTargets] = useState<Target[]>(FALLBACK_TARGETS);
   const [selected, setSelected] = useState("app-51");
-  const [online, setOnline] = useState<boolean | null>(null);
+  const [mode, setMode] = useState<"checking" | "live" | "replay">("checking");
   const [phase, setPhase] = useState<"idle" | "running" | "done" | "error">("idle");
   const [stages, setStages] = useState(idleStages);
   const [discovery, setDiscovery] = useState<RunRecord["discovery"]>(null);
@@ -484,18 +572,42 @@ export default function Console() {
   const [record, setRecord] = useState<RunRecord | null>(null);
   const [error, setError] = useState<{ message: string; fallback: string } | null>(null);
   const [recent, setRecent] = useState<RunRecord[]>([]);
+  const [log, setLog] = useState<LogLine[]>([]);
   const [runStart, setRunStart] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const chain = useRef<Promise<void>>(Promise.resolve());
   const esRef = useRef<EventSource | null>(null);
+  const timers = useRef<number[]>([]);
+  const startRef = useRef<number>(Date.now());
+  const logId = useRef(0);
 
   const target = targets.find((t) => t.id === selected) ?? targets[0];
   const running = phase === "running";
+  const verdictOf = (id: string): Verdict | null => {
+    if (record?.target === id) return record.verdict;
+    return (RECORDINGS[id]?.verdict as Verdict) ?? null;
+  };
 
   useEffect(() => {
-    fetch("/api/targets").then((r) => r.json()).then((t) => { setTargets(t); setOnline(true); }).catch(() => setOnline(false));
-    fetch("/api/runs").then((r) => r.json()).then(setRecent).catch(() => {});
-    return () => esRef.current?.close();
+    // The static dashboard has no server — go straight to replay, no probe (and no
+    // stray 404 in the console). `sudarshan serve` leaves forceReplay off and detects live.
+    if (forceReplay) {
+      setMode("replay");
+      return;
+    }
+    // Live if a console server answers; otherwise replay the bundled recordings.
+    fetch("/api/health", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(() => {
+        setMode("live");
+        fetch("/api/targets").then((r) => r.json()).then(setTargets).catch(() => {});
+        fetch("/api/runs").then((r) => r.json()).then(setRecent).catch(() => {});
+      })
+      .catch(() => setMode("replay"));
+    return () => {
+      esRef.current?.close();
+      timers.current.forEach((t) => clearTimeout(t));
+    };
   }, []);
 
   useEffect(() => {
@@ -504,33 +616,65 @@ export default function Console() {
     return () => clearInterval(h);
   }, [running]);
 
-  // Serialize visual updates so stages light up in order (see DWELL_MS).
   const later = (fn: () => void, dwell = 0) => {
-    chain.current = chain.current.then(async () => { fn(); if (dwell) await sleep(dwell); });
+    chain.current = chain.current.then(async () => {
+      fn();
+      if (dwell) await sleep(dwell);
+    });
   };
+  const pushLog = (text: string, color = "#C6BEAF") =>
+    setLog((prev) => [...prev, { id: logId.current++, t: Date.now() - startRef.current, text, color }]);
 
   const applyStage = (ev: { name: StageName; time: string; outcome?: string | null }) => {
     if (ev.name === "PROVE" && ev.outcome) setOutcome(ev.outcome);
+    pushLog(
+      `${ev.name} ✓ ${ev.time}` + (ev.name === "PROVE" && ev.outcome ? `  self-relocating: ${ev.outcome}` : ""),
+      ev.name === "PROVE" && ev.outcome === "CAUGHT" ? "#FF453A" : "#C6BEAF",
+    );
     setStages((prev) => {
       const next = { ...prev };
       const idx = STAGES.findIndex((s) => s.name === ev.name);
-      STAGES.forEach((s, i) => { if (i < idx && (next[s.name].state === "pending" || next[s.name].state === "running")) next[s.name] = { state: "skipped" }; });
+      STAGES.forEach((s, i) => {
+        if (i < idx && (next[s.name].state === "pending" || next[s.name].state === "running")) next[s.name] = { state: "skipped" };
+      });
       next[ev.name] = { state: "done", time: ev.time };
       const t = Date.now();
       if (ev.name === "PROVE") {
         if (ev.outcome === "CAUGHT") next.FIX = { state: "running", startedAt: t };
-        else if (ev.outcome) { next.FIX = { state: "skipped" }; next.CHECK = { state: "skipped" }; next.REMEMBER = { state: "running", startedAt: t }; }
+        else if (ev.outcome) {
+          next.FIX = { state: "skipped" };
+          next.CHECK = { state: "skipped" };
+          next.REMEMBER = { state: "running", startedAt: t };
+        }
       } else if (ev.name === "FIX") next.CHECK = { state: "running", startedAt: t };
       else if (ev.name === "CHECK") next.REMEMBER = { state: "running", startedAt: t };
       return next;
     });
   };
 
-  const run = (id = selected) => {
-    if (running) return;
+  // Shared event handlers — live SSE and replay both feed these.
+  const onDiscovery = (d: RunRecord["discovery"]) =>
+    later(() => {
+      setDiscovery(d);
+      if (d) pushLog(`route re-discovered ${d.route} · login ${d.login} · port ${d.port}`, "#30D158");
+    });
+  const onStage = (d: any) => later(() => applyStage(d), DWELL_MS);
+  const onResult = (rec: RunRecord) =>
+    later(() => {
+      setRecord(rec);
+      setPhase("done");
+      setRecent((prev) => [rec, ...prev.filter((p) => p.id !== rec.id)].slice(0, 10));
+      pushLog(`VERDICT: ${rec.verdict} (exit ${rec.exitCode})`, VERDICT[rec.verdict].color);
+    });
+  const onFailure = (d: any) => later(() => { setError({ message: d.message, fallback: d.fallback }); setPhase("error"); });
+
+  const resetForRun = (id: string, cmd: string) => {
     esRef.current?.close();
+    timers.current.forEach((t) => clearTimeout(t));
+    timers.current = [];
     chain.current = Promise.resolve();
     const t0 = Date.now();
+    startRef.current = t0;
     setPhase("running");
     setRecord(null);
     setError(null);
@@ -538,38 +682,50 @@ export default function Console() {
     setOutcome(null);
     setRunStart(t0);
     setNow(t0);
+    setLog([]);
     setStages({ ...idleStages(), PROVE: { state: "running", startedAt: t0 } });
+    pushLog(`$ ${cmd}`, "#9A9284");
+  };
 
+  const liveRun = (id: string) => {
+    resetForRun(id, target.cmd);
     let finished = false;
     const es = new EventSource(`/api/run?target=${encodeURIComponent(id)}`);
     esRef.current = es;
-    es.addEventListener("discovery", (e) => { const d = JSON.parse((e as MessageEvent).data); later(() => setDiscovery(d)); });
-    es.addEventListener("stage", (e) => { const d = JSON.parse((e as MessageEvent).data); later(() => applyStage(d), DWELL_MS); });
-    es.addEventListener("result", (e) => {
-      finished = true;
-      es.close();
-      const rec = JSON.parse((e as MessageEvent).data) as RunRecord;
-      later(() => {
-        setRecord(rec);
-        setPhase("done");
-        setRecent((prev) => [rec, ...prev.filter((p) => p.id !== rec.id)].slice(0, 10));
-      });
-    });
-    es.addEventListener("failure", (e) => {
-      finished = true;
-      es.close();
-      const d = JSON.parse((e as MessageEvent).data);
-      later(() => { setError({ message: d.message, fallback: d.fallback }); setPhase("error"); });
-    });
+    es.addEventListener("discovery", (e) => onDiscovery(JSON.parse((e as MessageEvent).data)));
+    es.addEventListener("stage", (e) => onStage(JSON.parse((e as MessageEvent).data)));
+    es.addEventListener("result", (e) => { finished = true; es.close(); onResult(JSON.parse((e as MessageEvent).data)); });
+    es.addEventListener("failure", (e) => { finished = true; es.close(); onFailure(JSON.parse((e as MessageEvent).data)); });
     es.onerror = () => {
       if (finished) return;
       finished = true;
       es.close();
       fetch("/api/health")
         .then((r) => r.json())
-        .then((h) => later(() => { setOnline(true); setError({ message: h.busy ? "A verification is already running — try again in a moment." : "The run stream closed unexpectedly.", fallback: target.cmd }); setPhase("error"); }))
-        .catch(() => later(() => { setOnline(false); setError({ message: "The console server is not reachable.", fallback: target.cmd }); setPhase("error"); }));
+        .then((h) => onFailure({ message: h.busy ? "A verification is already running — try again in a moment." : "The run stream closed unexpectedly.", fallback: target.cmd }))
+        .catch(() => onFailure({ message: "The console server is not reachable.", fallback: target.cmd }));
     };
+  };
+
+  const replayRun = (id: string) => {
+    const rec = RECORDINGS[id];
+    if (!rec) return;
+    resetForRun(id, rec.cmd);
+    for (const ev of rec.events as { t: number; type: string; data: any }[]) {
+      const timer = window.setTimeout(() => {
+        if (ev.type === "discovery") onDiscovery(ev.data);
+        else if (ev.type === "stage") onStage(ev.data);
+        else if (ev.type === "result") onResult(ev.data as RunRecord);
+        else if (ev.type === "failure") onFailure(ev.data);
+      }, ev.t);
+      timers.current.push(timer);
+    }
+  };
+
+  const run = (id = selected) => {
+    if (running || mode === "checking") return;
+    if (mode === "replay") replayRun(id);
+    else liveRun(id);
   };
 
   const openRecord = (r: RunRecord) => {
@@ -590,89 +746,91 @@ export default function Console() {
   };
 
   const sameTarget = record?.target === selected;
+  const recordedAt = (() => {
+    const iso = RECORDINGS[selected]?.recordedAt;
+    if (!iso) return "earlier today";
+    const d = new Date(iso);
+    return d.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  })();
 
-  return (
-    <div className="relative min-h-screen">
-      <Background />
-      <Header online={online} running={running} />
-      <main className="relative z-10 mx-auto max-w-[1120px] px-6 pb-20">
-        <section className="pt-14">
-          <Eyebrow>Live verification · localhost</Eyebrow>
-          <h1 className="mt-4 max-w-3xl text-balance text-[clamp(2rem,4.2vw,3.1rem)] font-semibold leading-[1.05] tracking-tight">
-            Attack the running app. <span className="text-mutefg">Prove the leak — or say so honestly.</span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-dimfg">
-            Sudarshan re-finds a route an AI moved, attacks it as another user, and proves a cross-user leak with three
-            deterministic checks. Every run below is the real CLI, streamed live.
-          </p>
-        </section>
+  const content = (
+    <div className={`relative z-10 mx-auto max-w-[1280px] px-5 sm:px-6 ${embedded ? "pb-16 pt-8" : "pb-20 pt-10"}`}>
+      {mode === "replay" && <div className="mb-6"><ReplayBanner recordedAt={recordedAt} /></div>}
 
-        <section className="mt-10">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-[12px] font-medium uppercase tracking-[0.18em] text-mutefg">1 · Pick a demo app</span>
-            <span className="text-[11px] text-mutefg/80">our own synthetic apps — no other targets</span>
-          </div>
-          <TargetPicker targets={targets} selected={selected} onSelect={setSelected} disabled={running} />
-        </section>
+      <div className="flex flex-col gap-1.5">
+        <Eyebrow>{mode === "replay" ? "Replay · recorded run" : "Live verification · localhost"}</Eyebrow>
+        <h1 className="max-w-3xl text-balance text-[clamp(1.6rem,3.4vw,2.5rem)] font-semibold leading-[1.06] tracking-tight">
+          Attack the running app. <span className="text-mutefg">Prove the leak — or say so honestly.</span>
+        </h1>
+      </div>
 
-        <section className="mt-6 flex flex-wrap items-center gap-4">
+      <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-[250px_minmax(0,1fr)]">
+        {/* LEFT — targets, run, recent */}
+        <aside className="space-y-4">
+          <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-mutefg">Target</div>
+          <TargetRail targets={targets} selected={selected} onSelect={setSelected} verdictOf={verdictOf} disabled={running} />
           <button
             type="button"
             onClick={() => run()}
-            disabled={running || online === false}
-            className="btn-primary focus-ring inline-flex h-12 min-w-[176px] items-center justify-center gap-2.5 rounded-xl px-6 text-[15px] font-semibold"
+            disabled={running || mode === "checking"}
+            className="btn-primary focus-ring inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl px-5 text-[15px] font-semibold"
           >
             {running ? (
-              <><Chakra size={16} className="spin-slow" /> Running <span className="mono tnum text-[13px] font-medium">{fmtDur(now - (runStart ?? now))}</span></>
+              <><Chakra size={16} className="spin-slow" /> Running <span className="mono tnum text-[13px]">{fmtDur(now - (runStart ?? now))}</span></>
             ) : sameTarget ? (
               <>{Icon.rerun()} Re-run {selected}</>
             ) : (
               <>{Icon.play()} Run {selected}</>
             )}
           </button>
-          <div className="flex min-w-0 items-center gap-2 rounded-xl border border-hair bg-panel/80 py-1.5 pl-3.5 pr-1.5">
-            <span className="mono truncate text-[12.5px] text-dimfg"><span className="text-mutefg">$</span> {target.cmd}</span>
-            <CopyButton text={target.cmd} label="Copy CLI" />
+          <div className="flex items-center gap-2 rounded-xl border border-hair bg-panel/80 py-1.5 pl-3 pr-1.5">
+            <span className="mono min-w-0 flex-1 truncate text-[11.5px] text-dimfg"><span className="text-mutefg">$</span> {target.cmd}</span>
+            <CopyButton text={target.cmd} label="Copy" />
           </div>
-          <span className="text-[11.5px] text-mutefg">Same command, same result — the CLI is the fallback.</span>
-        </section>
+          <RecentRuns runs={recent} activeId={record?.id ?? null} onOpen={openRecord} />
+        </aside>
 
-        <section className="mt-8">
-          <Pipeline stages={stages} now={now} discovery={discovery} outcome={outcome} phase={phase} runStart={runStart} total={record?.durationMs ?? null} />
-        </section>
+        {/* RIGHT — pipeline+log (centre) and results (right) */}
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,390px)]">
+          <div>
+            <Pipeline stages={stages} now={now} discovery={discovery} outcome={outcome} phase={phase} runStart={runStart} total={record?.durationMs ?? null} compact />
+            <LiveLog lines={log} running={running} />
+          </div>
 
-        {phase === "error" && error && (
-          <section className="rise mt-6 surface border-red/40 p-6" style={{ boxShadow: "inset 3px 0 0 0 #FF453A" }}>
-            <div className="flex items-center gap-2 text-sm font-medium text-red">{Icon.x()} Run did not complete</div>
-            <p className="mt-2 text-[13px] text-dimfg">{error.message}</p>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <span className="mono rounded-md border border-hair bg-ink/70 px-3 py-1.5 text-[12px] text-dimfg">$ {error.fallback}</span>
-              <CopyButton text={error.fallback} label="Copy fallback" />
-            </div>
-          </section>
-        )}
-
-        {phase === "done" && record && (
-          <section className="mt-6" key={record.id}>
-            <VerdictHero rec={record} onRerun={() => run(record.target)} running={running} />
-            <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-5">
-              <div className="space-y-5 lg:col-span-3">
+          <div>
+            {phase === "error" && error ? (
+              <div className="surface rise p-6" style={{ boxShadow: "inset 3px 0 0 0 #FF453A" }}>
+                <div className="flex items-center gap-2 text-sm font-medium text-red">{Icon.x()} Run did not complete</div>
+                <p className="mt-2 text-[13px] text-dimfg">{error.message}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <span className="mono rounded-md border border-hair bg-ink/70 px-3 py-1.5 text-[12px] text-dimfg">$ {error.fallback}</span>
+                  <CopyButton text={error.fallback} label="Copy fallback" />
+                </div>
+              </div>
+            ) : phase === "done" && record ? (
+              <div key={record.id} className="space-y-5">
+                <VerdictHero rec={record} onRerun={() => run(record.target)} running={running} />
                 <Contrast rec={record} />
                 <Evidence rec={record} />
-              </div>
-              <div className="space-y-5 lg:col-span-2">
                 <Proofs rec={record} />
                 <FixGate rec={record} />
+                <ScopeLine />
               </div>
-            </div>
-            <ScopeLine />
-          </section>
-        )}
+            ) : (
+              <EmptyResults running={running} />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
-        <section className="mt-10">
-          <RecentRuns runs={recent} activeId={record?.id ?? null} onOpen={openRecord} />
-        </section>
-      </main>
+  if (embedded) return content;
+  return (
+    <div className="relative min-h-screen">
+      <Background />
+      <Header online={mode === "live" ? true : mode === "replay" ? false : null} running={running} />
+      {content}
     </div>
   );
 }

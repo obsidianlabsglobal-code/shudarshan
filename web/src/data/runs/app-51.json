@@ -1,0 +1,271 @@
+{
+  "target": "app-51",
+  "cmd": "npm run sudarshan -- verify victim/app-51",
+  "recordedAt": "2026-11-21T03:27:41.401Z",
+  "verdict": "VULNERABLE",
+  "exitCode": 1,
+  "durationMs": 3331,
+  "events": [
+    {
+      "t": 36,
+      "type": "start",
+      "data": {
+        "target": "app-51",
+        "dir": "victim/app-51",
+        "cmd": "npm run sudarshan -- verify victim/app-51",
+        "startedAt": 1795231661426
+      }
+    },
+    {
+      "t": 3088,
+      "type": "discovery",
+      "data": {
+        "port": 3051,
+        "login": "/auth/login",
+        "route": "/api/v2/items"
+      }
+    },
+    {
+      "t": 3118,
+      "type": "stage",
+      "data": {
+        "name": "PROVE",
+        "time": "2.9s",
+        "ms": 2900,
+        "frozen": "PASS",
+        "outcome": "CAUGHT",
+        "index": 0
+      }
+    },
+    {
+      "t": 3560,
+      "type": "stage",
+      "data": {
+        "name": "FIX",
+        "time": "442ms",
+        "ms": 442,
+        "index": 1
+      }
+    },
+    {
+      "t": 3561,
+      "type": "stage",
+      "data": {
+        "name": "CHECK",
+        "time": "<1ms",
+        "ms": 0.5,
+        "index": 2
+      }
+    },
+    {
+      "t": 3561,
+      "type": "stage",
+      "data": {
+        "name": "REMEMBER",
+        "time": "1ms",
+        "ms": 1,
+        "index": 3
+      }
+    },
+    {
+      "t": 3574,
+      "type": "result",
+      "data": {
+        "id": "1795231661426-app-51",
+        "target": "app-51",
+        "verdict": "VULNERABLE",
+        "exitCode": 1,
+        "durationMs": 3331,
+        "wallMs": 3546,
+        "at": "2026-11-21T03:27:41.426Z",
+        "stages": [
+          {
+            "name": "PROVE",
+            "time": "2.9s",
+            "ms": 2900
+          },
+          {
+            "name": "FIX",
+            "time": "442ms",
+            "ms": 442
+          },
+          {
+            "name": "CHECK",
+            "time": "<1ms",
+            "ms": 0.5
+          },
+          {
+            "name": "REMEMBER",
+            "time": "1ms",
+            "ms": 1
+          }
+        ],
+        "discovery": {
+          "port": 3051,
+          "login": "/auth/login",
+          "route": "/api/v2/items"
+        },
+        "result": {
+          "target": "victim/app-51",
+          "app": "app-51",
+          "generatedAt": "2026-11-21T03:27:44.961Z",
+          "verdict": "VULNERABLE",
+          "exitCode": 1,
+          "discoveryError": null,
+          "frozen": {
+            "verdict": "PASS",
+            "path": "/records/rec-1001",
+            "status": 404,
+            "assumedBlocked": true
+          },
+          "caught": true,
+          "finding": {
+            "resource": "/api/v2/items/rec-1001",
+            "victim": "A",
+            "attacker": "B",
+            "markerMasked": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+            "leakedFields": [
+              "id",
+              "ownerId",
+              "patient",
+              "phone",
+              "accountNo",
+              "reason",
+              "amount"
+            ],
+            "leakedRecordMasked": {
+              "id": "reXXXX01",
+              "ownerId": "u-XXXta",
+              "patient": "AnXXXXXXXXXXXde",
+              "phone": "98XXXXXX76",
+              "accountNo": "INXXXXXXXXX10",
+              "reason": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+              "amount": "XXXX"
+            },
+            "controls": {
+              "attack": 200,
+              "own": 200,
+              "anon": 401,
+              "forged": 401
+            }
+          },
+          "fix": {
+            "applied": true,
+            "attackStatus": 404,
+            "legitStatus": 200,
+            "accepted": true
+          },
+          "trident": {
+            "marker": true,
+            "forgedDiscriminator": true,
+            "selfRelocating": true
+          },
+          "deterministic": true,
+          "benchmark": {
+            "provable": 6,
+            "total": 23
+          },
+          "totalDurationMs": 3331
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "1795231661426-app-51",
+    "target": "app-51",
+    "verdict": "VULNERABLE",
+    "exitCode": 1,
+    "durationMs": 3331,
+    "wallMs": 3546,
+    "at": "2026-11-21T03:27:41.426Z",
+    "stages": [
+      {
+        "name": "PROVE",
+        "time": "2.9s",
+        "ms": 2900
+      },
+      {
+        "name": "FIX",
+        "time": "442ms",
+        "ms": 442
+      },
+      {
+        "name": "CHECK",
+        "time": "<1ms",
+        "ms": 0.5
+      },
+      {
+        "name": "REMEMBER",
+        "time": "1ms",
+        "ms": 1
+      }
+    ],
+    "discovery": {
+      "port": 3051,
+      "login": "/auth/login",
+      "route": "/api/v2/items"
+    },
+    "result": {
+      "target": "victim/app-51",
+      "app": "app-51",
+      "generatedAt": "2026-11-21T03:27:44.961Z",
+      "verdict": "VULNERABLE",
+      "exitCode": 1,
+      "discoveryError": null,
+      "frozen": {
+        "verdict": "PASS",
+        "path": "/records/rec-1001",
+        "status": 404,
+        "assumedBlocked": true
+      },
+      "caught": true,
+      "finding": {
+        "resource": "/api/v2/items/rec-1001",
+        "victim": "A",
+        "attacker": "B",
+        "markerMasked": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+        "leakedFields": [
+          "id",
+          "ownerId",
+          "patient",
+          "phone",
+          "accountNo",
+          "reason",
+          "amount"
+        ],
+        "leakedRecordMasked": {
+          "id": "reXXXX01",
+          "ownerId": "u-XXXta",
+          "patient": "AnXXXXXXXXXXXde",
+          "phone": "98XXXXXX76",
+          "accountNo": "INXXXXXXXXX10",
+          "reason": "FoXXXXXXXXXXXXXXXXXXXXXXXXXXXon",
+          "amount": "XXXX"
+        },
+        "controls": {
+          "attack": 200,
+          "own": 200,
+          "anon": 401,
+          "forged": 401
+        }
+      },
+      "fix": {
+        "applied": true,
+        "attackStatus": 404,
+        "legitStatus": 200,
+        "accepted": true
+      },
+      "trident": {
+        "marker": true,
+        "forgedDiscriminator": true,
+        "selfRelocating": true
+      },
+      "deterministic": true,
+      "benchmark": {
+        "provable": 6,
+        "total": 23
+      },
+      "totalDurationMs": 3331
+    }
+  }
+}

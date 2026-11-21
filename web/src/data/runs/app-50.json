@@ -1,0 +1,157 @@
+{
+  "target": "app-50",
+  "cmd": "npm run sudarshan -- verify victim/app-50",
+  "recordedAt": "2026-11-21T03:27:45.576Z",
+  "verdict": "NO_LEAK_DETECTED",
+  "exitCode": 0,
+  "durationMs": 1921,
+  "events": [
+    {
+      "t": 6,
+      "type": "start",
+      "data": {
+        "target": "app-50",
+        "dir": "victim/app-50",
+        "cmd": "npm run sudarshan -- verify victim/app-50",
+        "startedAt": 1795231665578
+      }
+    },
+    {
+      "t": 2090,
+      "type": "discovery",
+      "data": {
+        "port": 3050,
+        "login": "/auth/login",
+        "route": "/records"
+      }
+    },
+    {
+      "t": 2118,
+      "type": "stage",
+      "data": {
+        "name": "PROVE",
+        "time": "1.9s",
+        "ms": 1900,
+        "frozen": "—",
+        "outcome": "NO_LEAK_DETECTED",
+        "index": 0
+      }
+    },
+    {
+      "t": 2119,
+      "type": "stage",
+      "data": {
+        "name": "REMEMBER",
+        "time": "<1ms",
+        "ms": 0.5,
+        "index": 3
+      }
+    },
+    {
+      "t": 2127,
+      "type": "result",
+      "data": {
+        "id": "1795231665578-app-50",
+        "target": "app-50",
+        "verdict": "NO_LEAK_DETECTED",
+        "exitCode": 0,
+        "durationMs": 1921,
+        "wallMs": 2124,
+        "at": "2026-11-21T03:27:45.578Z",
+        "stages": [
+          {
+            "name": "PROVE",
+            "time": "1.9s",
+            "ms": 1900
+          },
+          {
+            "name": "REMEMBER",
+            "time": "<1ms",
+            "ms": 0.5
+          }
+        ],
+        "discovery": {
+          "port": 3050,
+          "login": "/auth/login",
+          "route": "/records"
+        },
+        "result": {
+          "target": "victim/app-50",
+          "app": "app-50",
+          "generatedAt": "2026-11-21T03:27:47.693Z",
+          "verdict": "NO_LEAK_DETECTED",
+          "exitCode": 0,
+          "discoveryError": null,
+          "frozen": null,
+          "caught": false,
+          "finding": null,
+          "fix": {
+            "applied": false
+          },
+          "trident": {
+            "marker": false,
+            "forgedDiscriminator": false,
+            "selfRelocating": false
+          },
+          "deterministic": true,
+          "benchmark": {
+            "provable": 6,
+            "total": 23
+          },
+          "totalDurationMs": 1921
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "1795231665578-app-50",
+    "target": "app-50",
+    "verdict": "NO_LEAK_DETECTED",
+    "exitCode": 0,
+    "durationMs": 1921,
+    "wallMs": 2124,
+    "at": "2026-11-21T03:27:45.578Z",
+    "stages": [
+      {
+        "name": "PROVE",
+        "time": "1.9s",
+        "ms": 1900
+      },
+      {
+        "name": "REMEMBER",
+        "time": "<1ms",
+        "ms": 0.5
+      }
+    ],
+    "discovery": {
+      "port": 3050,
+      "login": "/auth/login",
+      "route": "/records"
+    },
+    "result": {
+      "target": "victim/app-50",
+      "app": "app-50",
+      "generatedAt": "2026-11-21T03:27:47.693Z",
+      "verdict": "NO_LEAK_DETECTED",
+      "exitCode": 0,
+      "discoveryError": null,
+      "frozen": null,
+      "caught": false,
+      "finding": null,
+      "fix": {
+        "applied": false
+      },
+      "trident": {
+        "marker": false,
+        "forgedDiscriminator": false,
+        "selfRelocating": false
+      },
+      "deterministic": true,
+      "benchmark": {
+        "provable": 6,
+        "total": 23
+      },
+      "totalDurationMs": 1921
+    }
+  }
+}

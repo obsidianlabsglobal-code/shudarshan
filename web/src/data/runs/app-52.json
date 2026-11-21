@@ -1,0 +1,140 @@
+{
+  "target": "app-52",
+  "cmd": "npm run sudarshan -- verify victim/app-52",
+  "recordedAt": "2026-11-21T03:27:48.304Z",
+  "verdict": "INCONCLUSIVE",
+  "exitCode": 2,
+  "durationMs": 2086,
+  "events": [
+    {
+      "t": 5,
+      "type": "start",
+      "data": {
+        "target": "app-52",
+        "dir": "victim/app-52",
+        "cmd": "npm run sudarshan -- verify victim/app-52",
+        "startedAt": 1795231668305
+      }
+    },
+    {
+      "t": 2254,
+      "type": "stage",
+      "data": {
+        "name": "PROVE",
+        "time": "2.1s",
+        "ms": 2100,
+        "frozen": "—",
+        "outcome": "INCONCLUSIVE",
+        "index": 0
+      }
+    },
+    {
+      "t": 2255,
+      "type": "stage",
+      "data": {
+        "name": "REMEMBER",
+        "time": "<1ms",
+        "ms": 0.5,
+        "index": 3
+      }
+    },
+    {
+      "t": 2264,
+      "type": "result",
+      "data": {
+        "id": "1795231668305-app-52",
+        "target": "app-52",
+        "verdict": "INCONCLUSIVE",
+        "exitCode": 2,
+        "durationMs": 2086,
+        "wallMs": 2262,
+        "at": "2026-11-21T03:27:48.305Z",
+        "stages": [
+          {
+            "name": "PROVE",
+            "time": "2.1s",
+            "ms": 2100
+          },
+          {
+            "name": "REMEMBER",
+            "time": "<1ms",
+            "ms": 0.5
+          }
+        ],
+        "discovery": null,
+        "result": {
+          "target": "victim/app-52",
+          "app": "app-52",
+          "generatedAt": "2026-11-21T03:27:50.558Z",
+          "verdict": "INCONCLUSIVE",
+          "exitCode": 2,
+          "discoveryError": "no list endpoint discovered",
+          "frozen": null,
+          "caught": false,
+          "finding": null,
+          "fix": {
+            "applied": false
+          },
+          "trident": {
+            "marker": false,
+            "forgedDiscriminator": false,
+            "selfRelocating": false
+          },
+          "deterministic": true,
+          "benchmark": {
+            "provable": 6,
+            "total": 23
+          },
+          "totalDurationMs": 2086
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "1795231668305-app-52",
+    "target": "app-52",
+    "verdict": "INCONCLUSIVE",
+    "exitCode": 2,
+    "durationMs": 2086,
+    "wallMs": 2262,
+    "at": "2026-11-21T03:27:48.305Z",
+    "stages": [
+      {
+        "name": "PROVE",
+        "time": "2.1s",
+        "ms": 2100
+      },
+      {
+        "name": "REMEMBER",
+        "time": "<1ms",
+        "ms": 0.5
+      }
+    ],
+    "discovery": null,
+    "result": {
+      "target": "victim/app-52",
+      "app": "app-52",
+      "generatedAt": "2026-11-21T03:27:50.558Z",
+      "verdict": "INCONCLUSIVE",
+      "exitCode": 2,
+      "discoveryError": "no list endpoint discovered",
+      "frozen": null,
+      "caught": false,
+      "finding": null,
+      "fix": {
+        "applied": false
+      },
+      "trident": {
+        "marker": false,
+        "forgedDiscriminator": false,
+        "selfRelocating": false
+      },
+      "deterministic": true,
+      "benchmark": {
+        "provable": 6,
+        "total": 23
+      },
+      "totalDurationMs": 2086
+    }
+  }
+}
