@@ -50,7 +50,7 @@ it never once converts "I can't find it" into a false "no leak."
 
 ## One-paragraph summary
 
-Across 25 programmatically generated AI route-rewrites of one BOLA app (21 seeded-vulnerable,
+Across 25 programmatically generated synthetic route transformations of one BOLA app (21 seeded-vulnerable,
 4 secure controls), **self-relocating re-discovery re-found and caught 8/21 vulnerable rewrites
 (all in-dictionary/known-prefix moves — 8/8 of Type A, 95% CI [0.68, 1.0]), went honestly
 INCONCLUSIVE on the other 13/21 (every unfamiliar-name, nested, and alternate-structure rewrite),

@@ -9,7 +9,7 @@ assertion logic. No change to `engine/` or `victim/` (the demo is locked).
 ## Hypothesis (pre-registered)
 
 > Self-relocating re-discovery detects seeded authorization regressions across varied
-> AI route-rewrites where frozen saved tests and static scanners fail — **and never
+> synthetic route transformations where frozen saved tests and static scanners fail — **and never
 > reports NO_LEAK_DETECTED on a seeded-vulnerable app.**
 
 ## What we will measure

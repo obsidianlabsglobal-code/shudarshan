@@ -23,7 +23,7 @@
 
 ## The problem
 
-From one prompt and one model we generated **23 applications**. The AI secured 17 and shipped **6 with a forgeable session secret** — and nothing in the running apps tells you which 6.
+From one prompt template and one model we generated **23 applications**. The AI secured 17 and shipped **6 with a forgeable session secret** — and nothing in the running apps tells you which 6.
 
 It gets worse on the next prompt. Ask for one more feature and the assistant rewrites the route — `/records/:id` becomes `/api/v2/items/:id` — and drops the ownership check. The app still compiles and runs. A saved security test pinned to the old path now gets a 404 and reports **PASS**. The fix didn't just break; it became invisible.
 
